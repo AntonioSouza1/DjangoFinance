@@ -1,0 +1,76 @@
+{%extends 'main.html'%}
+{% load static %}
+
+{% block head %}
+    <style>
+        main {
+            width: 70%;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+    <section class="form-button">
+        <h2>Cartão</h2>
+        <button type="submit" class="custom-button default" form="form">Salvar</button>
+        {% if object.pk %}
+            <form action="{% url 'card:delete' object.pk %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir?');">
+                {% csrf_token %}
+                <button type="submit" class="custom-button danger">Excluir</button>
+            </form>
+        {% endif %}
+        <a href="{% url 'card:list' %}"><button type="button" class="custom-button outline">Sair</button></a>
+    </section>
+
+    <section class="forms">
+        <form method="POST" id="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group grid-4">
+                <div class="form-item">
+                    <label for="{{ form.card_name.id_for_label }}">Nome do Cartão</label>
+                    {{ form.card_name }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.card_number.id_for_label }}">Número do Cartão</label>
+                    {{ form.card_number }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.expiration_date.id_for_label }}">Validade</label>
+                    {{ form.expiration_date }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.card_type.id_for_label }}">Tipo:</label>
+                    {{ form.card_type }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.billing_day.id_for_label }}">Fechamento</label>
+                    {{ form.billing_day }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.due_day.id_for_label }}">Vencimento</label>
+                    {{ form.due_day }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.credit_limit.id_for_label }}">Limite</label>
+                    {{ form.credit_limit }}
+                </div>
+
+                <div class="form-item span-4">
+                    <label for="{{ form.observation.id_for_label }}">Observações</label>
+                    {{ form.observation }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.status.id_for_label }}">Situação</label>
+                    {{ form.status }}
+                </div>
+            </div>
+        </form>
+    </section>
+{% endblock %}

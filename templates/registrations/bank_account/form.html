@@ -1,0 +1,64 @@
+{%extends 'main.html'%}
+{% load static %}
+
+{% block head %}
+    <style>
+        main {
+            width: 70%;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+    <section class="form-button">
+        <h2>Conta Bancaria</h2>
+        <button type="submit" class="custom-button default" form="form">Salvar</button>
+        {% if object.pk %}
+            <form action="{% url 'bank_account:delete' object.pk %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir?');">
+                {% csrf_token %}
+                <button type="submit" class="custom-button danger">Excluir</button>
+            </form>
+        {% endif %}
+        <a href="{% url 'bank_account:list' %}"><button type="button" class="custom-button outline">Sair</button></a>
+    </section>
+
+    <section class="forms">
+        <form method="POST" id="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h3>Dados da Conta</h3>
+            <div class="form-group grid-4">
+                <div class="form-item">
+                    <label for="{{ form.bank_name.id_for_label }}">Nome do banco:</label>
+                    {{ form.bank_name }}
+                </div>
+                <div class="form-item">
+                    <label for="{{ form.agency_number.id_for_label }}">Número da Agência</label>
+                    {{ form.agency_number }}
+                </div>
+                <div class="form-item">
+                    <label for="{{ form.account_number.id_for_label }}">Número da Conta:</label>
+                    {{ form.account_number }}
+                </div>
+                <div class="form-item">
+                    <label for="{{ form.account_type.id_for_label }}">Tipo</label>
+                    {{ form.account_type }}
+                </div>
+                <div class="form-item">
+                    <label for="{{ form.currency.id_for_label }}">Moeda:</label>
+                    {{ form.currency }}
+                </div>
+
+                <div class="form-item span-4">
+                    <label for="{{ form.description.id_for_label }}">Descrição:</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="form-item">
+                    <label for="{{ form.status.id_for_label }}">Status:</label>
+                    {{ form.status }}
+                </div>
+            </div>
+
+        </form>
+    </section>
+{% endblock %}

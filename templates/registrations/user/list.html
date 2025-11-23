@@ -1,0 +1,85 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %}Novo Transação{% endblock %}
+
+{% block content %}
+    <section class="title-div">
+        <h1>Usuários</h1>
+    </section>
+
+    <section class="forms">
+        <h3>Filtros</h3>
+        <form method="GET" class="form-filter" disabled="true">
+            <div class="filter-content">
+                <div class="filter-item">
+                    <label for="filter_id">ID</label>
+                    <input type="number" name="filter_id" value="{{ filter_id }}" id="filter_id" min="1" max="9999" placeholder="ID">
+                </div>
+                <div class="filter-item">
+                    <label for="filter_user">Usuário:</label>
+                    <input type="text" name="filter_user" value="{% if filter_user %}{{ filter_user }}{% endif %}" id="filter_user" placeholder="Usuário">
+                </div>
+                <div class="form-button">
+                    <a href="{% url 'subscription:list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+                    <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="card-buttons">
+        <a href="{% url 'user:create' %}"><button type="button" class="custom-button success">Cadastrar</button></a>
+    </section>
+
+    <div class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Nome Completo</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.pk }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_full_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td style="width: 150px;">
+                            <a href="{% url 'user:update' user.pk %}" title="Alterar"><button class="button"><i class="fa-solid fa-user-pen"></i></button></a>
+                            <a href="{% url 'user:permissions_update' user.pk %}" title="Permissões"><button class="button"><i class="fa-solid fa-list-check"></i></button></a>
+                            <button class="button" type="submit" form="form_delete"><i class="fa-solid fa-trash-can" title="Excluir"></i></button>
+                            <form action="{% url 'user:delete' user.pk %}" method="post" id="form_delete" onsubmit="return confirm('Tem certeza que deseja excluir?');">
+                                  {% csrf_token %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Não há registros para serem exibidos</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

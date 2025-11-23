@@ -1,0 +1,80 @@
+{%extends 'main.html' %}
+{% load static %}
+
+{% block head %}
+    <style>
+        .root {
+            width: 60%;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+<div class="root">
+    <div class="title-div">
+        <h2>Transação</h2>
+    </div>
+
+    <div class="form-button">
+        <button type="submit" class="custom-button default" form="form">Salvar</button>
+        {% if object.pk %}
+            <form action="{% url 'transaction:delete' object.pk %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir?');">
+                {% csrf_token %}
+                <button type="submit" class="custom-button danger">Excluir</button>
+            </form>
+        {% endif %}
+        <a href="{% url 'transaction:list' %}"><button type="button" class="custom-button outline">Sair</button></a>
+    </div>
+
+    <section class="forms">
+    <form method="POST" id="form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group grid-5">
+            <div class="form-item">
+                <label for="{{ form.type.id_for_label }}">Tipo</label>
+                {{ form.type }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.description.id_for_label }}">Descrição</label>
+                {{ form.description }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.value.id_for_label }}">Valor</label>
+                {{ form.value }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.due_date.id_for_label }}">Data de Vencimento</label>
+                {{ form.due_date }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.payment_date.id_for_label }}">Data de Pagameto</label>
+                {{ form.payment_date }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.status.id_for_label }}">Pago</label>
+                {{ form.status }}
+            </div>
+
+            <div class="form-item">
+                <label for="create_at">Data de Assinatura</label>
+                <input type="text" name="id_create_at" id="id_create_at" value="{{ object.created_at|date:"d/m/Y" }}" disabled>
+            </div>
+
+            <div class="form-item">
+                <label for="update_at">Ultima Atualização</label>
+                <input type="text" name="update_at" id="update_at" value="{{ object.updated_at|date:"d/m/Y" }}" disabled>
+            </div>
+
+        </div>
+    </form>
+    </section>
+</div>
+{% endblock %}
+
+

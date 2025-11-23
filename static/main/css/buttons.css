@@ -1,0 +1,141 @@
+.card-buttons{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    padding: 5px 10px;
+    gap: 10px;
+}
+
+.card-buttons-forms{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    padding: 0 10px;
+    gap: 10px;
+}
+
+.custom-button {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 400;
+    padding: 5px 10px;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+
+    &:hover:not(:disabled) {
+        opacity: 0.85;
+    }
+
+    &.new{
+        background: var(--color-primary-1);
+        color: var(--white);
+        border-radius: 30px;
+        padding: 5px 15px;
+    }
+
+    &:disabled {
+        background-color: #f0f0f0;
+        color: #aaa;
+        border-color: #ddd;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &.default {
+        background-color: var(--primary);
+        color: var(--text-light);
+    }
+
+    &.secondary {
+        background-color: var(--secondary);
+        color: var(--text-light);
+    }
+
+    &.success {
+        background-color: var(--success);
+        color: var(--text-light);
+    }
+
+    &.danger {
+        background-color: var(--danger);
+        color: var(--text-light);
+    }
+
+    &.warning {
+        background-color: var(--warning);
+        color: var(--text-light);
+    }
+
+    &.blue {
+        background-color: var(--dark-blue);
+        color: var(--text-light);
+    }
+
+    &.outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--border-color);
+
+        &.default { border-color: var(--primary); color: var(--primary); }
+        &.success { border-color: var(--success); color: var(--success); }
+        &.danger  { border-color: var(--danger);  color: var(--danger);  }
+        &.warning { border-color: var(--warning); color: var(--warning); }
+    }
+
+
+
+    &.sm {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    &.lg {
+        font-size: 16px;
+        padding: 12px 24px;
+        font-weight: 600;
+    }
+
+
+    &.pill {
+        border-radius: 999px;
+    }
+
+    &.icon {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border-radius: 50%;
+
+        &.sm {
+            width: 32px;
+            height: 32px;
+        }
+        &.lg {
+            width: 48px;
+            height: 48px;
+        }
+    }
+}
+/*
+    <button class="custom-button success">Cadastrar</button>
+
+    <button class="custom-button secondary">Cancelar</button>
+
+    <button class="custom-button danger outline">Excluir</button>
+
+    <button class="custom-button default lg pill">Entrar</button>
+
+    <button class="custom-button warning sm">Aviso</button>
+
+    <button class="custom-button default icon">
+        +
+    </button>
+
+    <button class="custom-button default" disabled>Enviar</button>
+*/

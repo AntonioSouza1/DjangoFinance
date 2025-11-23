@@ -1,0 +1,84 @@
+{%extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<section class="title-div">
+    <h1>Categoria de Assinaturas</h1>
+</section>
+
+<section class="filter" id="filter_content">
+    <form method="GET">
+        <h3>Filtros</h3>
+        <div class="filter-group">
+            <div class="filter-item">
+                <label for="f_id">ID</label>
+                <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_category">Categoria:</label>
+                <input type="text" name="f_category" value="{% if f_category %}{{ f_category }}{% endif %}" id="f_category" placeholder="Categoria">
+            </div>
+
+            <div class="filter-button">
+                <a href="{% url 'subscription:category_list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+                <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+            </div>
+        </div>
+    </form>
+</section>
+
+<div class="root">
+
+    <section class="card-buttons">
+        <a href="{% url 'subscription:list' %}"><button type="button" class="custom-button blue" title="lista de categoria">Assinaturas</button></a>
+        <a href="{% url 'subscription:category_create' %}"><button type="button" class="custom-button new">Nova Categoria</button></a>
+    </section>
+
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 95%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Categoria</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for category in categories %}
+                    <tr onclick="window.location='{% url 'subscription:category_update' category.pk %}';" style='cursor: pointer;'>
+                        <td>{{ category.pk }}</td>
+                        <td>{{ category.category }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+

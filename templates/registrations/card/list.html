@@ -1,0 +1,123 @@
+{%extends 'main.html'%}
+{% load static %}
+
+{% block content %}
+    <section class="title-div">
+        <h1>Cartões</h1>
+    </section>
+
+    <section class="forms">
+        <h3>Filtros</h3>
+        <form method="GET" class="form-filter" disabled="disabled">
+            <div class="form-group">
+                <div class="form-item">
+                    <label for="f_id">ID</label>
+                    <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
+                </div>
+                <div class="form-item">
+                    <label for="f_card">Cartão:</label>
+                    <input type="text" name="f_card" value="{% if f_card %}{{ f_card }}{% endif %}" id="f_card" placeholder="Cartão">
+                </div>
+                <div class="form-item">
+                    <label for="f_type">Tipo:</label>
+                    <select name="f_type" id="f_type" onchange="this.form.submit()">
+                        <option value="" selected>Selecione</option>
+                        <option value="CR" {% if f_type == 'CR' %}selected{% endif %}>Cartão de Crédito</option>
+                        <option value="DB" {% if f_type == 'DB' %}selected{% endif %}>Cartão de Débito</option>
+                        <option value="PP" {% if f_type == 'PP' %}selected{% endif %}>Pré-pago</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="f_status">Situação:</label>
+                    <select name="f_status" id="f_status" onchange="this.form.submit()">
+                        <option value="" selected>Selecione</option>
+                        <option value="A" {% if f_status == 'A' %}selected{% endif %}>Ativo</option>
+                        <option value="V" {% if f_status == 'V' %}selected{% endif %}>Vencido</option>
+                        <option value="I" {% if f_status == 'I' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+                <div class="form-button">
+                    <a href="{% url 'card:list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+                    <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="card-buttons">
+        <a href="{% url 'card:create' %}"><button type="button" class="custom-button success">Cadastrar</button></a>
+    </section>
+
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 65%;">
+                <col style="width: 20%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nome do Cartão</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Situação</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for card in cards %}
+                    <tr onclick="window.location='{% url 'card:update' card.pk %}';" style='cursor: pointer;'>
+                        <td>{{ card.pk }}</td>
+                        <td>{{ card.card_name }}</td>
+                        <td>
+                            {% if card.card_type == 'CR' %}
+                            Crédito
+                            {% elif card.card_type == 'DB' %}
+                            Débito
+                            {% elif card.card_type == 'PP' %}
+                            Pré-pago
+                            {% else %}
+                            Indefinido
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if card.status == 'A' %}
+                                <div class="badge badge--success">Ativo</div>
+                            {% elif card.status == 'V' %}
+                                <div class="badge badge--danger">Vencido</div>
+                            {% elif card.status == 'I' %}
+                                <div class="badge badge--warning">Inativo</div>
+                            {% else %}
+                                <div class="badge">Indefinido</div>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                {% empty %}
+                    <tr>
+                        <td colspan="5">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
+

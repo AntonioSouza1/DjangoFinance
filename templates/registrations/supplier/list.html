@@ -1,0 +1,134 @@
+{%extends 'main.html' %}
+{% load static %}
+
+
+{% block title %}Fornecedor{% endblock %}
+
+{% block content %}
+
+    <section class="title-div">
+        <h1>Fornecedor</h1>
+    </section>
+
+    <section class="forms">
+        <form method="GET" class="form-filter" disabled="disabled">
+            <h3>Filtros</h3>
+            <div class="form-group">
+                <div class="form-item">
+                    <label for="f_id">ID</label>
+                    <input type="number" name="f_id" value="{{ f_id }}" id="filter_id" min="1" placeholder="ID">
+                </div>
+
+                <div class="form-item">
+                    <label for="f_corporate_name">Razão social / Nome Completo:</label>
+                    <input type="text" name="f_corporate_name" value="{% if f_corporate_name %}{{ f_corporate_name }}{% endif %}" id="f_corporate_name" placeholder="Razão social / Nome Completo:">
+                </div>
+
+                <div class="form-item">
+                    <label for="f_fantasy_name">Nome Fant. / Apelido:</label>
+                    <input type="text" name="f_fantasy_name" value="{% if f_fantasy_name %}{{ f_fantasy_name }}{% endif %}" id="f_fantasy_name" placeholder="Nome Fant. / Apelido:">
+                </div>
+
+                <div class="form-item">
+                    <label for="f_cpf_cnpj">CPF/CNPJ:</label>
+                    <input type="text" name="f_cpf_cnpj" value="{% if f_cpf_cnpj %}{{ f_cpf_cnpj }}{% endif %}" id="f_cpf_cnpj" placeholder="CPF/CNPJ">
+                </div>
+
+                <div class="form-item">
+                    <label for="f_status">Situação:</label>
+                    <select name="f_status" id="f_status" onchange="this.form.submit()">
+                        <option value="" selected>Selecione</option>
+                        <option value="A" {% if f_status == 'A' %}selected{% endif %}>Ativo</option>
+                        <option value="I" {% if f_status == 'I' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+
+                <div class="form-button">
+                    <a href="{% url 'supplier:list' %}"><button type="button" class="custom-button secondary" title="Limpar">Limpar</button></a>
+                    <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="card-buttons">
+        <a href="{% url 'supplier:create' %}"><button type="button" class="custom-button success">Cadastrar</button></a>
+    </section>
+
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 30%;">
+                <col style="width: 25%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Rasão Social</th>
+                    <th scope="col">Nome Fant.</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">CPF/CNPJ</th>
+                    <th scope="col">RG/IE</th>
+                    <th scope="col">Situação</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for supplier in suppliers %}
+                    <tr onclick="window.location='{% url 'supplier:update' supplier.pk %}';" style='cursor: pointer;'>
+                        <td>{{ supplier.id }}</td>
+                        <td>{{ supplier.corporate_name }}</td>
+                        <td>{{ supplier.fantasy_name }}</td>
+                        <td>
+                            {% if supplier.type_person == 'PF' %}Pessoa Fisica{% elif supplier.type_person == 'PJ' %}Pessoa Juridica{% else %}Indefinido{% endif %}
+                        </td>
+                        <td>
+                            {% if supplier.cpf_cnpj %}{{ supplier.cpf_cnpj }}{% else %}{% endif %}
+                        </td>
+                        <td>
+                            {% if supplier.rg_ie %}{{ supplier.rg_ie }}{% else %}{% endif %}
+                        </td>
+                        <td>
+                            {% if supplier.status == 'A' %}
+                                    <div class="badge badge--success">Ativo</div>
+                                {% elif supplier.status == 'I' %}
+                                    <div class="badge badge--danger">Inativo</div>
+                                {% else %}
+                                    <div class="badge">Indefinido</div>
+                                {% endif %}
+                        </td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
+

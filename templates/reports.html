@@ -1,0 +1,48 @@
+{% extends 'main.html'%}
+
+{% block content %}
+<div class="root">
+
+    <section class="tab-buttons">
+        <button type="button" class="tab-btn active" data-tab="tab1">Transações</button>
+        <button type="button" class="tab-btn" data-tab="tab2">Assinaturas</button>
+        <button type="button" class="tab-btn" data-tab="tab3">Emprestimos</button>
+    </section>
+
+
+    <section class="tab-content active" id="tab1" >
+        <section>
+            Transações
+        </section>
+
+        <form method="GET" action="{% url 'transaction:report' %}" target="_blank">
+            {% include "movements/transaction/filter.html" %}
+
+            <div class="filter-button">
+                <button type="submit" class="custom-button default" title="Imprimir">Imprimir</button>
+            </div>
+        </form>
+    </section>
+
+    <section  class="tab-content" id="tab2">
+        <section>
+            Assinaturas
+        </section>
+
+        <form method="GET" action="{% url 'subscription:report' %}" target="_blank">
+            {% include "registrations/subscription/filter.html" %}
+
+            <div class="filter-button">
+                <button type="submit" class="custom-button default" title="Imprimir">Imprimir</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="tab-content" id="tab3">
+        <section>
+            Emprestimos
+        </section>
+
+        </section>
+</div>
+{% endblock %}

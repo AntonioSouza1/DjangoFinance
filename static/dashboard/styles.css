@@ -1,0 +1,93 @@
+#dashboard {
+    display: grid;
+    flex-direction: column;
+    gap: 12px;
+    align-items: start;
+    justify-content: center;
+    padding: 24px;
+
+    .dashboard-grid {
+        display: flex;
+        gap: 24px;
+        width: 100%;
+        flex-wrap: wrap; /* Permite quebrar linha no celular */
+
+        /* --- Estilo Base do Card --- */
+        .stat-card {
+            flex: 1; /* Ocupa espaço igual */
+            min-width: 350px; /* Largura mínima para não quebrar layout */
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                        0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center; /* Alinha ícone e texto verticalmente */
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #f0f0f0;
+
+            &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+
+            /* --- Ícones --- */
+            .icon-box {
+                width: 65px;
+                height: 65px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 20px;
+                font-size: 24px; /* Tamanho do SVG */
+                flex-shrink: 0; /* Impede que o ícone amasse */
+
+                &.blue {
+                    background-color: #eff6ff;
+                    color: #2563eb;
+                }
+
+                &.green {
+                    background-color: #f0fdf4;
+                    color: #16a34a;
+                }
+
+                &.red {
+                    background-color: #ffefef;
+                    color: #eb2525;
+                }
+            }
+
+            /* --- Textos --- */
+            .card-info {
+                display: flex;
+                flex-direction: column;
+
+                .card-label {
+                    font-size: 14px;
+                    color: #6b7280;
+                    font-weight: 500;
+                    margin-bottom: 4px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+
+                .card-value {
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #1f2937;
+                    line-height: 1.1;
+                }
+
+                /* Pequeno texto de rodapé (opcional) */
+                .card-note {
+                    font-size: 11px;
+                    margin-top: 4px;
+                    color: var(--color-primary-1   ); /* Verde para crescimento */
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+}

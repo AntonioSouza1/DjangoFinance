@@ -1,0 +1,44 @@
+{%extends 'main.html'%}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'dashboard/styles.css' %}">
+{% endblock %}
+{% block content %}
+<div id="dashboard">
+    <section class="dashboard-grid">
+
+        <div class="stat-card">
+            <div class="icon-box green">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Receita Total</span>
+                <span class="card-value">R$ {{ total_transactions_e|floatformat:2 }}</span>
+                <p class="card-note">Total de movimentações: {{ transactions_e }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-box red">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Despesas Total</span>
+                <span class="card-value">R$ {{ total_transactions_s|floatformat:2 }}</span>
+                <p class="card-note">Total de movimentações: {{ transactions_s }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-box blue">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Assinaturas Ativas</span>
+                <span class="card-value">{{ subscriptions }} - R$ {{ total_subscriptions|floatformat:2 }}</span>
+            </div>
+        </div>
+
+    </section>
+</div>
+{% endblock %}

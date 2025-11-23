@@ -1,0 +1,40 @@
+.tab {
+    display: none;
+}
+
+.tab-buttons {
+  display: flex;
+    width: 100%;
+    gap: 5px;
+}
+
+.tab-buttons button {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 3px 8px;
+    transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+
+.tab-buttons button.active {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.form-container {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  max-width: 600px;
+  margin: auto;
+}

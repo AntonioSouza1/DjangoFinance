@@ -1,0 +1,124 @@
+{%extends 'main.html'%}
+{% load static %}
+
+{% block content %}
+    <section class="title-div">
+        <h1>Contas Bancarias</h1>
+    </section>
+
+    <div class="forms">
+        <h3>Filtros</h3>
+        <form method="GET" class="form-filter" disabled="disabled">
+            <div class="form-group">
+                <div class="filter-item">
+                    <label for="f_id">ID</label>
+                    <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID" >
+                </div>
+                <div class="form-item">
+                    <label for="f_bank">Banco:</label>
+                    <input type="text" name="f_bank" value="{% if f_bank %}{{ f_bank }}{% endif %}" id="f_bank" placeholder="Banco">
+                </div>
+                <div class="form-item">
+                    <label for="f_type">Tipo:</label>
+                    <select name="f_type" id="f_type" onchange="this.form.submit()">
+                        <option value="" selected>Selecione</option>
+                        <option value="CC" {% if f_type == 'CC' %}selected{% endif %}>Conta Corrente</option>
+                        <option value="CP" {% if f_type == 'CP' %}selected{% endif %}>Conta Poupança</option>
+                        <option value="INV" {% if f_type == 'INV' %}selected{% endif %}>Investimento</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="f_status">Situação:</label>
+                    <select name="f_status" id="f_status" onchange="this.form.submit()">
+                        <option value="" selected>Selecione</option>
+                        <option value="A" {% if f_status == 'A' %}selected{% endif %}>Ativo</option>
+                        <option value="I" {% if f_status == 'I' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+                <div class="form-button">
+                    <a href="{% url 'bank_account:list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+                    <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <section class="card-buttons">
+        <a href="{% url 'bank_account:create' %}"><button type="button" class="custom-button success">Cadastrar</button></a>
+    </section>
+
+    <div class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 50%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Banco</th>
+                    <th scope="col">Nº Agencia</th>
+                    <th scope="col">nº Conta</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bank_account in bank_accounts %}
+                    <tr onclick="window.location='{% url 'bank_account:update' bank_account.pk %}';" style='cursor: pointer;'>
+                        <td>{{ bank_account.pk }}</td>
+                        <td>{{ bank_account.bank_name }}</td>
+                        <td>{{ bank_account.agency_number }}</td>
+                        <td>{{ bank_account.account_number }}</td>
+                        <td>
+                            {% if bank_account.account_type == 'CC' %}
+                            Conta Corrente
+                            {% elif bank_account.account_type == 'CP' %}
+                            Conta Poupança
+                            {% elif bank_account.account_type == 'INV' %}
+                            Investimento
+                            {% else %}
+                            Indefinido
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bank_account.status == 'A' %}
+                                <div class="badge badge--success">Ativo</div>
+                            {% elif bank_account.status == 'I' %}
+                                <div class="badge badge--danger">Inativo</div>
+                            {% else %}
+                                <div class="badge">Indefinido</div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+

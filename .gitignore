@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+.DS_Store
+media/
+staticfiles/
+.pytest_cache/
+.mypy_cache/
+.coverage
+.idea/
+.vscode/
+Lista.txt

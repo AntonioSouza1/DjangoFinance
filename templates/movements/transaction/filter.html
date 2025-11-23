@@ -1,0 +1,42 @@
+<div class="filter-group">
+    <div class="filter-item">
+        <label for="f_id">ID</label>
+        <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
+    </div>
+
+    <div class="filter-item">
+        <label for="f_description">Descrição</label>
+        <input type="text" name="f_description" value="{% if f_description %}{{ f_description }}{% endif %}" id="f_description" placeholder="Descrição">
+    </div>
+
+    <div class="filter-item">
+        <label for="f_due_date_of">Vencimento de</label>
+        <input type="date" name="f_due_date_of" value="{% if f_due_date_of %}{{ f_due_date_of }}{% endif %}" id="f_due_date_of">
+    </div>
+
+    <div class="filter-item">
+        <label for="f_due_date">até</label>
+        <input type="date" name="f_due_date" value="{% if f_due_date %}{{ f_due_date }}{% endif %}" id="f_due_date">
+    </div>
+
+    <div class="filter-item">
+        <label for="f_type">Tipo</label>
+        <select name="f_type" id="f_type">
+            <option value="" selected>Selecione</option>
+            <option value="E" {% if f_type == 'E' %}selected{% endif %}>Entrada</option>
+            <option value="S" {% if f_type == 'S' %}selected{% endif %}>Saida</option>
+        </select>
+    </div>
+
+    <div class="filter-item">
+        <label for="f_status">Status</label>
+        <select name="f_status" id="f_status">
+            <option value="" selected>Selecione</option>
+            <option value="A" {% if f_status == 'P' %}selected{% endif %}>Pendente</option>
+            <option value="Q" {% if f_status == 'Q' %}selected{% endif %}>Quitado</option>
+            <option value="V" {% if f_status == 'V' %}selected{% endif %}>Vencido</option>
+            <option value="C" {% if f_status == 'C' %}selected{% endif %}>Cancelado</option>
+            <option value="T" {% if f_status == 'T' %}selected{% endif %}>Todos</option>
+        </select>
+    </div>
+</div>

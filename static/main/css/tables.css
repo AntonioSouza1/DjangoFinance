@@ -1,0 +1,41 @@
+/* Tabela Padrão*/
+.tabela-container {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px #1018280a;
+    overflow-x: auto !important;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: var(--color-neutral-0);
+        overflow-X: auto;
+        table-layout: fixed;
+    }
+
+    th {
+        text-align: left;
+        font-weight: 500;
+        background: var(--color-neutral-3);
+        border-bottom: 1px solid #e5e7eb;
+        color: #0f172a;
+        font-size: .9rem;
+        padding: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    td {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        text-align: left;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    tr:hover {
+        background-color: var(--color-neutral-1);
+    }
+}
