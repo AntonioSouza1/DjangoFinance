@@ -8,4 +8,4 @@ from django.views.generic import  View
 class Reports(LoginRequiredMixin, View):
     login_url = reverse_lazy('login:login')
     def get(self, request, *args, **kwargs):
-        return render(request, 'reports.html')
+        return render(request, 'reports/reports.html')

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'main/base/css/base.css' %}">
     <title>Django Finance</title>
     {% block head %}{% endblock %}
 </head>
@@ -13,7 +13,7 @@
     <!-- Header-->
     <header>
         <nav class="navbar">
-            <a href="/" class="logo">Django <strong>Finance</strong></a>
+            <a href="/static" class="logo">Django <strong>Finance</strong></a>
 
             <button class="btn btn-mobile">
                 <i class="fa-solid fa-bars"></i>
@@ -55,6 +55,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'user:list' %}">Usuários</a></li>
+                        <li><a href="{% url 'log:list' %}">Auditoria</a></li>
                         <li><a href="">Configurações</a></li>
                         <li><a href="{% url 'login:logout' %}">Sair</a></li>
                     </ul>
@@ -85,6 +86,6 @@
         &copy; 2025 DjangoFinace. Todos os direitos reservados.
     </footer>
     -->
-    <script src="{% static 'main/scripts/base.js' %}"></script>
+    <script src="{% static 'main/base/scripts/base.js' %}"></script>
 </body>
 </html>

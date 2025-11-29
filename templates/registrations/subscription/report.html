@@ -1,19 +1,5 @@
-{%extends 'main.html' %}
+{%extends 'main/reports.html' %}
 {% load static %}
-
-{% block head %}
-    <script>
-        // Adiciona um listener para quando a impressão terminar
-        window.addEventListener("afterprint", (event) => {
-            window.close();
-        });
-
-        // Inicia a impressão assim que a página carregar
-        window.onload = (event) => {
-            window.print();
-        };
-    </script>
-{% endblock head %}
 
 {% block content %}
 <div class="root">

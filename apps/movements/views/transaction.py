@@ -1,4 +1,5 @@
 from django.contrib.messages.context_processors import messages
+from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -19,10 +20,10 @@ class TransactionMixin(ContextMixin):
         # 1. Pegue os filtros do GET
         f_id = self.request.GET.get('f_id', '')
         f_description = self.request.GET.get('f_description', '')
-        f_due_date_of = self.request.GET.get('f_due_date_of', '') #vencimento de
-        f_due_date = self.request.GET.get('f_due_date', '') #até
+        f_due_date_of = self.request.GET.get('f_due_date_of', date) #vencimento de
+        f_due_date = self.request.GET.get('f_due_date', date) #até
         f_type = self.request.GET.get('f_type', '')
-        f_status = self.request.GET.get('f_status', '')
+        f_status = self.request.GET.get('f_status', 'T')
 
         filters = {}
 
@@ -57,13 +58,20 @@ class TransactionMixin(ContextMixin):
         # 1. Bug do super() corrigido
         context = super().get_context_data(**kwargs)
 
+        queryset_filtrada = self.get_queryset()
+
+        total_output_agg = queryset_filtrada.filter(type='S').aggregate(total_output=Sum('amount_paid'))
+        total_input_agg = queryset_filtrada.filter(type='E').aggregate(total_input=Sum('amount_paid'))
+
         # 2. Passe os filtros para o template (para preencher o form)
         context["f_id"] = self.request.GET.get('f_id', '')
         context["f_description"] = self.request.GET.get('f_description', '')
-        context["f_due_date_of"] = self.request.GET.get('f_due_date_of', '')
-        context["f_due_date"] = self.request.GET.get('f_due_date', '')
+        context["f_due_date_of"] = self.request.GET.get('f_due_date_of', date)
+        context["f_due_date"] = self.request.GET.get('f_due_date', date)
         context["f_type"] = self.request.GET.get('f_type', '')
-        context["f_status"] = self.request.GET.get('f_status', '')
+        context["f_status"] = self.request.GET.get('f_status', 'T')
+        context["total_output"] = total_output_agg.get('total_output', '')
+        context["total_input"] = total_input_agg.get('total_input', '')
 
         return context
 

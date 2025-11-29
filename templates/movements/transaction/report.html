@@ -1,24 +1,14 @@
-{%extends 'main.html' %}
+{%extends 'main/reports.html' %}
 {% load static %}
-
-{% block head %}
-    <script>
-        // Adiciona um listener para quando a impressão terminar
-        window.addEventListener("afterprint", (event) => {
-            window.close();
-        });
-
-        // Inicia a impressão assim que a página carregar
-        window.onload = (event) => {
-            window.print();
-        };
-    </script>
-{% endblock head %}
 
 {% block content %}
 <div class="root">
     <section class="title-div">
         <h1>Transações</h1>
+    </section>
+
+    <section>
+        <p>ID {{ f_id }} - Descrição {{ f_description }} - Vencimento de {{ f_due_date_of }} Até {{ f_due_date }} - Tipo {{ f_type }} - Status {{ f_status }}</p>
     </section>
 
     <section class="tabela-container">
@@ -68,6 +58,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <h1>Totais</h1>
     </section>
 </div>
 {% endblock %}

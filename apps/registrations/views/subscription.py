@@ -1,7 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+
+from apps.movements.models.transaction import Transaction
 from apps.registrations.forms.subscription import SubscriptionForm, CategoryForm
-from apps.registrations.models.subscription import Subscription, Category, SubscriptionLog
+from apps.registrations.models.subscription import Subscription, Category
 from apps.registrations.models.supplier import Supplier
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -108,6 +110,7 @@ class CategoryUpdate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMe
                 return redirect(reverse_lazy('subscription:category_list'))
             return super().handle_no_permission()
 
+
 class SubscriptionMixin(ContextMixin):
 
     def get_queryset(self):
@@ -206,6 +209,13 @@ class SubscriptionUpdate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErr
                 return redirect(reverse_lazy('subscriptions_list'))
             return super().handle_no_permission()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['transactions'] = self.object.transaction.all().order_by('-updated_at')
+        print(context['transactions'])
+
+        return context
+
 #excluir assinatura
 class SubscriptionDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('subscription:list')
@@ -241,28 +251,3 @@ class SubscriptionReport(LoginRequiredMixin, PermissionRequiredMixin, Subscripti
                 messages.error(self.request, "Você não tem permissão para criar uma assintatura.")
                 return redirect(reverse_lazy('subscriptions_list'))
             return super().handle_no_permission()
-
-
-class SubscriptionHistory(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, ListView):
-    model = SubscriptionLog
-    template_name = 'registrations/subscription/history.html'
-    context_object_name = 'subscription_logs'
-    login_url = reverse_lazy('login:login')
-    permission_required = 'subscriptionlog.view_subscriptionlog'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para acessar o histórico de uma assinatura.")
-                return redirect(reverse_lazy('subscriptions:list'))
-            return super().handle_no_permission()
-
-    def get_queryset(self):
-        pk = self.kwargs.get('pk')
-        return SubscriptionLog.objects.filter(subscription=pk)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        pk = self.kwargs.get('pk')
-        context['subscription'] = Subscription.objects.get(pk=pk)
-        return context

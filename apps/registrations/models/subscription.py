@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 from apps.registrations.models.supplier import Supplier
@@ -41,7 +42,7 @@ class Subscription(models.Model):
     ]
 
     service = models.CharField(max_length=100, verbose_name="Serviço")
-    #supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, limit_choices_to={'status': 'A'})
+    supplier = models.CharField(max_length=100, null=True, blank=True, verbose_name='Fornecedor')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name="Categoria")
     subscription_type = models.CharField(max_length=20, choices=SUBSCRIPTION_TYPES, verbose_name="Tipo de Assinatura")
     value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor")
@@ -62,6 +63,5 @@ class Subscription(models.Model):
     def __str__(self):
         return self.service
 
-class SubscriptionLog(models.Model):
-    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
-    created_at = models.DateField(auto_now_add=True)
+auditlog.register(Subscription)
+auditlog.register(Category)

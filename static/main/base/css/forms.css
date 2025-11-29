@@ -5,6 +5,13 @@
     width: 100%;
     background-color: var(--color-neutral-0);
     transition: transform 0.2s ease;
+
+    h3{
+        color: var(--color-neutral-6);
+        text-transform: uppercase;
+        font-size: .8rem;
+        margin: 10px 0;
+    }
 }
 
 .form-input{

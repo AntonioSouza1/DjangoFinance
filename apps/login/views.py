@@ -17,7 +17,7 @@ def login_form(request):
             return redirect('dashboard:home')
         else:
             login_form = AuthenticationForm()
-    return render(request, 'login.html', {'login_form': login_form})
+    return render(request, 'login/login.html', {'login_form': login_form})
 
 
 def logout_form(request):

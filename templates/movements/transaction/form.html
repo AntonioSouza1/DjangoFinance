@@ -1,4 +1,4 @@
-{%extends 'main.html' %}
+{%extends 'main/base.html' %}
 {% load static %}
 
 {% block head %}
@@ -29,23 +29,42 @@
     <section class="forms">
     <form method="POST" id="form" enctype="multipart/form-data">
         {% csrf_token %}
+        <h3>Identificação e Vínculo</h3>
+        <div class="form-group grid-6">
 
-        <div class="form-group grid-5">
-            <div class="form-item">
-                <label for="{{ form.type.id_for_label }}">Tipo</label>
-                {{ form.type }}
-            </div>
-
-            <div class="form-item">
+            <div class="form-item span-3">
                 <label for="{{ form.description.id_for_label }}">Descrição</label>
                 {{ form.description }}
             </div>
 
+        </div>
+        <h3>Valores</h3>
+        <div class="form-group grid-6">
+
             <div class="form-item">
-                <label for="{{ form.value.id_for_label }}">Valor</label>
-                {{ form.value }}
+                <label for="{{ form.base_value.id_for_label }}">Valor base</label>
+                {{ form.base_value }}
             </div>
 
+            <div class="form-item">
+                <label for="{{ form.discount.id_for_label }}">Desconto</label>
+                {{ form.discount }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.add.id_for_label }}">Acrescimo</label>
+                {{ form.add }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.amount_paid.id_for_label }}">Valor pago</label>
+                {{ form.amount_paid }}
+            </div>
+
+        </div>
+
+        <h3>Datas e Prazos</h3>
+        <div class="form-group grid-6">
             <div class="form-item">
                 <label for="{{ form.due_date.id_for_label }}">Data de Vencimento</label>
                 {{ form.due_date }}
@@ -55,10 +74,24 @@
                 <label for="{{ form.payment_date.id_for_label }}">Data de Pagameto</label>
                 {{ form.payment_date }}
             </div>
+        </div>
+
+        <h3>Classificação e Status</h3>
+        <div class="form-group grid-6">
 
             <div class="form-item">
-                <label for="{{ form.status.id_for_label }}">Pago</label>
+                <label for="{{ form.type.id_for_label }}">Tipo</label>
+                {{ form.type }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.status.id_for_label }}">Status</label>
                 {{ form.status }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.subscription.id_for_label }}">Assinatura</label>
+                {{ form.subscription }}
             </div>
 
             <div class="form-item">
@@ -75,6 +108,34 @@
     </form>
     </section>
 </div>
+
+<script>
+    function calcularValorDevido() {
+        // 1. Pega os valores e converte para número (float)
+        // Usa parseFloat() e || 0 para garantir que campos vazios sejam tratados como 0
+        const valorBase = parseFloat(document.getElementById('id_base_value').value) || 0;
+        const acrescimos = parseFloat(document.getElementById('id_add').value) || 0;
+        const descontos = parseFloat(document.getElementById('id_discount').value) || 0;
+
+        // 2. Calcula o valor devido
+        // Valor Devido = Base + Acréscimos - Descontos
+        let valorDevido = valorBase + acrescimos - descontos;
+
+        // 3. Atualiza o campo de saída
+        // Usa .toFixed(2) para garantir duas casas decimais
+        document.getElementById('id_amount_paid').value = valorDevido.toFixed(2);
+    }
+
+    // 4. Conecta a função ao evento de alteração de cada campo
+    document.getElementById('id_base_value').addEventListener('input', calcularValorDevido);
+    document.getElementById('id_add').addEventListener('input', calcularValorDevido);
+    document.getElementById('id_discount').addEventListener('input', calcularValorDevido);
+
+    // Opcional: Chama a função uma vez ao carregar a página
+    calcularValorDevido();
+
+</script>
+
 {% endblock %}
 
 

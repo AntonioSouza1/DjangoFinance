@@ -143,15 +143,3 @@ header{
         }
     }
 }
-
-@media print{
-    header{
-        display: none;
-    }
-    @page {
-        size: A4 landscape; /* "landscape" é o que faz ela deitar */
-
-        /* Você pode usar outros tamanhos, como 'letter' ou 'legal' */
-        /* size: letter landscape; */
-    }
-}

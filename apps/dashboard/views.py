@@ -14,6 +14,7 @@ class Dashboard(LoginRequiredMixin, View):
     login_url = reverse_lazy('login:login')
     def get(self, request, *args, **kwargs):
         subscriptions = Subscription.objects.filter(status='A').count()
+
         total_subscriptions = Subscription.objects.filter(status='A').aggregate(total=Sum('value'))['total'] or 0
 
         transactions_e = Transaction.objects.filter(
@@ -28,7 +29,7 @@ class Dashboard(LoginRequiredMixin, View):
             status='Q',
             payment_date__year=today.year,
             payment_date__month=today.month
-        ).aggregate(total=Sum('value'))['total'] or 0
+        ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
         transactions_s = Transaction.objects.filter(
             type='S',
@@ -42,7 +43,7 @@ class Dashboard(LoginRequiredMixin, View):
             status='Q',
             payment_date__year=today.year,
             payment_date__month=today.month
-        ).aggregate(total=Sum('value'))['total'] or 0
+        ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
         context = {
             'subscriptions': subscriptions,
@@ -53,4 +54,4 @@ class Dashboard(LoginRequiredMixin, View):
             'total_transactions_s': total_transactions_s,
         }
 
-        return render(request, 'dashboard.html', context)
+        return render(request, 'dashboard/dashboard.html', context)

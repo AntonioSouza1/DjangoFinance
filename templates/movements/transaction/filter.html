@@ -1,4 +1,4 @@
-<div class="filter-group">
+<div class="filter-group grid-6">
     <div class="filter-item">
         <label for="f_id">ID</label>
         <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
@@ -11,12 +11,12 @@
 
     <div class="filter-item">
         <label for="f_due_date_of">Vencimento de</label>
-        <input type="date" name="f_due_date_of" value="{% if f_due_date_of %}{{ f_due_date_of }}{% endif %}" id="f_due_date_of">
+        <input type="date" name="f_due_date_of" value="{% if f_due_date_of %}{{ f_due_date_of|date:'Y-m-d' }}{% endif %}" id="f_due_date_of">
     </div>
 
     <div class="filter-item">
         <label for="f_due_date">até</label>
-        <input type="date" name="f_due_date" value="{% if f_due_date %}{{ f_due_date }}{% endif %}" id="f_due_date">
+        <input type="date" name="f_due_date" value="{% if f_due_date %}{{ f_due_date|date:'Y-m-d' }}{% endif %}" id="f_due_date">
     </div>
 
     <div class="filter-item">
@@ -32,7 +32,7 @@
         <label for="f_status">Status</label>
         <select name="f_status" id="f_status">
             <option value="" selected>Selecione</option>
-            <option value="A" {% if f_status == 'P' %}selected{% endif %}>Pendente</option>
+            <option value="P" {% if f_status == 'P' %}selected{% endif %}>Pendente</option>
             <option value="Q" {% if f_status == 'Q' %}selected{% endif %}>Quitado</option>
             <option value="V" {% if f_status == 'V' %}selected{% endif %}>Vencido</option>
             <option value="C" {% if f_status == 'C' %}selected{% endif %}>Cancelado</option>

@@ -1,4 +1,4 @@
-{%extends 'main.html' %}
+{%extends 'main/base.html' %}
 {% load static %}
 
 {% block head %}
@@ -107,6 +107,89 @@
         </div>
     </form>
     </section>
+
+    {% if object.pk %}
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 5%;">
+                <col style="width: 25%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Data de Pagamento</th>
+                    <th scope="col">Data de Vencimento</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr onclick="window.location='{% url 'transaction:update' transaction.pk %}';" style='cursor: pointer;'>
+                        <td>{{ transaction.pk }}</td>
+                        <td>
+                            {% if transaction.type == 'E' %}
+                                <div class="badge badge--success">Entrada</div>
+                            {% elif transaction.type == 'S' %}
+                                <div class="badge badge--danger">Saida</div>
+                            {% else %}
+                                <div class="badge">Indefinido</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.description }}</td>
+                        <td>R$ {{ transaction.value }}</td>
+                        <td>{{ transaction.payment_date|date:"d/m/Y" }}</td>
+                        <td>{{ transaction.due_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if transaction.status == 'P' %}
+                                Pendente
+                            {% elif transaction.status == 'Q' %}
+                                Quitado
+                            {% elif transaction.status == 'V' %}
+                                Vencido
+                            {% elif transaction.status == 'C' %}
+                                Cancelado
+                            {% else %}
+                                Indefinido
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+    {% endif %}
 </div>
 {% endblock %}
 

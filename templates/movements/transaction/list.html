@@ -1,4 +1,4 @@
-{%extends 'main.html' %}
+{%extends 'main/base.html' %}
 {% load static %}
 {% load l10n %}
 
@@ -22,6 +22,10 @@
 <div class="root">
 
     <section class="card-buttons">
+        <div>
+            <div class="badge badge--success">{{ total_input }}</div>
+            <div class="badge badge--danger">{{ total_output }}</div>
+        </div>
         <a href="{% url 'transaction:create' %}"><button type="button" class="custom-button new">Nova Transação</button></a>
     </section>
 

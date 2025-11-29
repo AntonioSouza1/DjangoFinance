@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+
+USE_I18N = True
+USE_L10N = True # Habilita o uso de formato de localização
+LANGUAGE_CODE = 'pt-br'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'auditlog',
+    'apps.logs.apps.LogsConfig',
     'apps.login.apps.LoginConfig',
     'apps.dashboard.apps.DashboardConfig',
     'apps.registrations.apps.RegistrationsConfig',
@@ -51,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'auditlog.middleware.AuditlogMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -80,8 +88,12 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'DjangoFinance',
+        'USER': 'postgres',
+        'PASSWORD': '5320',
+        'HOST': 'localhost',  # e.g., 'localhost'
+        'PORT': '5432',  # e.g., '5432'
     }
 }
 

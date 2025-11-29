@@ -17,6 +17,7 @@ __pycache__/
 .DS_Store
 media/
 staticfiles/
+*migrations/
 .pytest_cache/
 .mypy_cache/
 .coverage
