@@ -51,3 +51,4 @@ mobileBtn.addEventListener('click', () => {
     icon.classList.toggle('fa-bars')
 });
 
+

@@ -13,7 +13,6 @@ urlpatterns = [
     path('dashboard/', include('apps.dashboard.urls')),
     path('registraions/', include('apps.registrations.urls')),
     path('movements/', include('apps.movements.urls')),
-    path('reports/', include('apps.reports.urls')),
     path('', include('apps.login.urls')),
     path('logs/', include('apps.logs.urls')),
     path('admin/', admin.site.urls),

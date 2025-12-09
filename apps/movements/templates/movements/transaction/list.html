@@ -1,0 +1,339 @@
+{%extends 'main/base.html' %}
+{% load static %}
+{% load l10n %}
+{% block head %}
+    <style>
+        dialog {
+            margin: auto;        /* Margem automática nos 4 lados */
+            inset: 0;           /* Garante que o elemento 'saiba' os limites da tela */
+
+            /* Tamanho e Layout */
+                    /* Ocupa 90% em celulares */
+              /* Trava em 400px em telas grandes */
+            padding: 2rem;      /* Espaçamento interno generoso */
+
+            /* Visual Moderno */
+            border: none;
+            border-radius: 16px; /* Cantos bem arredondados */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra suave para dar profundidade */
+            background-color: #fff;
+
+            /* Animação de Entrada */
+            animation: surgimentoSuave 0.3s ease-out;
+        }
+
+        /* Estilo do fundo escuro (backdrop) nativo do dialog */
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Organização interna do formulário */
+        .form-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .botoes-modal {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        </style>
+{% endblock %}
+{% block content %}
+<section class="title-div">
+    <h1>Transações</h1>
+</section>
+
+<section class="filter" id="filter_content">
+    <form method="get">
+
+        <div class="filter-group grid-6">
+            <div class="filter-item">
+                <label for="f_id">ID</label>
+                <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_description">Descrição</label>
+                <input type="text" name="f_description" value="{% if f_description %}{{ f_description }}{% endif %}" id="f_description" placeholder="Descrição">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_due_date_of">Vencimento de</label>
+                <input type="date" name="f_due_date_of" value="{% if f_due_date_of %}{{ f_due_date_of|date:'Y-m-d' }}{% endif %}" id="f_due_date_of">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_due_date">até</label>
+                <input type="date" name="f_due_date" value="{% if f_due_date %}{{ f_due_date|date:'Y-m-d' }}{% endif %}" id="f_due_date">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_type">Tipo</label>
+                <select name="f_type" id="f_type">
+                    <option value="" selected>Selecione</option>
+                    <option value="E" {% if f_type == 'E' %}selected{% endif %}>Entrada</option>
+                    <option value="S" {% if f_type == 'S' %}selected{% endif %}>Saida</option>
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label for="f_status">Status</label>
+                <select name="f_status" id="f_status">
+                    <option value="" selected>Selecione</option>
+                    <option value="P" {% if f_status == 'P' %}selected{% endif %}>Pendente</option>
+                    <option value="Q" {% if f_status == 'Q' %}selected{% endif %}>Quitado</option>
+                    <option value="V" {% if f_status == 'V' %}selected{% endif %}>Vencido</option>
+                    <option value="C" {% if f_status == 'C' %}selected{% endif %}>Cancelado</option>
+                    <option value="T" {% if f_status == 'T' %}selected{% endif %}>Todos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-button">
+            <button type="submit" formaction="{% url 'transaction:report' %}" formtarget="_blank" class="custom-button default" title="Imprimir">Imprimir</button>
+
+            <a href="{% url 'transaction:list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+            <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+        </div>
+    </form>
+</section>
+
+<div class="root">
+
+    <section class="card-buttons">
+        <div>
+            <div class="badge badge--success">{{ total_input }}</div>
+            <div class="badge badge--danger">{{ total_output }}</div>
+        </div>
+        <a href="{% url 'transaction:create' %}"><button type="button" class="custom-button new">Nova Transação</button></a>
+    </section>
+
+
+
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 5%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Data de Pagamento</th>
+                    <th scope="col">Data de Vencimento</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.pk }}</td>
+                        <td>
+                            {% if transaction.type == 'E' %}
+                                <div class="badge badge--success">Entrada</div>
+                            {% elif transaction.type == 'S' %}
+                                <div class="badge badge--danger">Saida</div>
+                            {% else %}
+                                <div class="badge">Indefinido</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.description }}</td>
+                        <td>R$ {{ transaction.amount_paid }}</td>
+                        <td>{{ transaction.payment_date|date:"d/m/Y" }}</td>
+                        <td>{{ transaction.due_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if transaction.status == 'P' %}
+                                Pendente
+                            {% elif transaction.status == 'Q' %}
+                                Quitado
+                            {% elif transaction.status == 'V' %}
+                                Vencido
+                            {% elif transaction.status == 'C' %}
+                                Cancelado
+                            {% else %}
+                                Indefinido
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not transaction.status == 'Q' %}
+                                <a href="{% url 'transaction:update' transaction.pk %}"><button type="button" class="custom-button outline">Editar</button></a>
+                                <button type="button" id="open_pay_off{{ transaction.pk }}" class="custom-button outline">Baixar</button>
+                            {% endif %}
+                            <button type="button" id="open_detail{{ transaction.pk }}" class="custom-button outline">Visualizar</button>
+
+                            {% if not transaction.status == 'Q' %}
+                                <dialog id="pay_off{{ transaction.pk }}">
+
+                                    <form id="formDownload" action="{% url 'transaction:settle-transaction' transaction.pk %}" method="POST">
+                                        {% csrf_token %}
+                                        <h3>Selecione a data de pagamento</h3>
+
+                                        <div class="form-grupo">
+                                            <label for="date">Data</label>
+                                            <input type="date" id="date" name="date">
+                                        </div>
+
+                                        <div class="botoes-modal">
+                                            <button type="button" class="custom-button default" id="btnCancelarBaixa{{ transaction.pk }}">Cancelar</button>
+                                            <button type="submit" class="custom-button secondary">Confirmar</button>
+                                        </div>
+                                    </form>
+                                </dialog>
+                            {% endif %}
+
+                            <dialog id="detail{{ transaction.pk }}">
+                                <div class="form-group grid-4">
+                                    <div class="form-item">
+                                        <label for="id{{ transaction.pk }}">ID</label>
+                                        <input type="text" value="{{ transaction.pk }}" name="id{{ transaction.pk }}" id="id{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item span-3">
+                                        <label for="description{{ transaction.pk }}">Descrição</label>
+                                        <input type="text" value="{{ transaction.description }}" name="description{{ transaction.pk }}" id="description{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="base_value{{ transaction.pk }}">Valor Base</label>
+                                        <input type="text" value="{{ transaction.base_value }}" name="base_value{{ transaction.pk }}" id="base_value{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="discount{{ transaction.pk }}">Desconto</label>
+                                        <input type="text" value="{{ transaction.discount }}" name="discount{{ transaction.pk }}" id="discount{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="add{{ transaction.pk }}">Acrescimo</label>
+                                        <input type="text" value="{{ transaction.add }}" name="add{{ transaction.pk }}" id="add{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="amount_paid{{ transaction.pk }}">Valor Pago</label>
+                                        <input type="text" value="{{ transaction.amount_paid }}" name="amount_paid{{ transaction.pk }}" id="amount_paid{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="due_date{{ transaction.pk }}">Data de Vencimento</label>
+                                        <input type="text" value="{{ transaction.due_date|date:"d/m/Y" }}" name="due_date{{ transaction.pk }}" id="due_date{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="payment_date{{ transaction.pk }}">Data de Pagamento</label>
+                                        <input type="text" value="{{ transaction.payment_date|date:"d/m/Y" }}" name="payment_date{{ transaction.pk }}" id="payment_date{{ transaction.pk }}" disabled>
+                                    </div>
+
+
+                                    <div class="form-item">
+                                        <label for="type{{ transaction.pk }}">Tipo</label>
+                                        <input type="text" value="{% if transaction.type == 'E' %}Entrada{% elif transaction.type == 'S' %}Saida{% else %}Indefinido{% endif %}" name="type{{ transaction.pk }}" id="type{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <label for="status{{ transaction.pk }}">Status</label>
+                                        <input type="text" value="{% if transaction.status == 'P' %}Pendente{% elif transaction.status == 'Q' %}Quitado{% elif transaction.status == 'V' %}Vencido{% elif transaction.status == 'C' %}Cancelado{% else %}Indefinido{% endif %}" id="status{{ transaction.pk }}" disabled>
+                                    </div>
+
+                                    {% if transaction.subscription %}
+                                        <div class="form-item">
+                                            <label for="subscription{{ transaction.pk }}">Assinatura</label>
+                                            <input type="text" value="{{ transaction.subscription }}" name="subscription{{ transaction.pk }}" id="subscription{{ transaction.pk }}" disabled>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <button type="button" class="custom-button default" id="btnCancelarDetalhe{{ transaction.pk }}">Voltar</button>
+                            </dialog>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<script>
+    // Define a data máxima (Hoje)
+    const hoje = new Date();
+    const dataFormatada = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+    {% for transaction in transactions %}
+        (function() {
+            // Escopo isolado para cada transação
+            const pk = "{{ transaction.pk }}";
+
+            // Seleciona Elementos
+            const modalPay = document.getElementById('pay_off' + pk);
+            const modalDetail = document.getElementById('detail' + pk);
+
+            const btnOpenPay = document.getElementById('open_pay_off' + pk);
+            const btnOpenDetail = document.getElementById('open_detail' + pk);
+
+            // Botões de fechar (IDs atualizados conforme sugestão acima)
+            const btnClosePay = document.getElementById('btnCancelarBaixa' + pk);
+            const btnCloseDetail = document.getElementById('btnCancelarDetalhe' + pk);
+
+            // Input de data específico desta transação
+            const inputDate = document.getElementById('date' + pk);
+
+            // Lógica Modal Baixa
+            if (btnOpenPay && modalPay) {
+                btnOpenPay.addEventListener('click', () => {
+                    if(inputDate) inputDate.max = dataFormatada; // Define max data ao abrir
+                    modalPay.showModal();
+                });
+            }
+
+            if (btnClosePay && modalPay) {
+                btnClosePay.addEventListener('click', () => modalPay.close());
+            }
+
+            // Lógica Modal Detalhe
+            if (btnOpenDetail && modalDetail) {
+                btnOpenDetail.addEventListener('click', () => modalDetail.showModal());
+            }
+
+            if (btnCloseDetail && modalDetail) {
+                btnCloseDetail.addEventListener('click', () => modalDetail.close());
+            }
+        })();
+    {% endfor %}
+</script>
+
+{% endblock %}

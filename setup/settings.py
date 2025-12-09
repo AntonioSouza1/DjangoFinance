@@ -13,11 +13,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-
-USE_I18N = True
-USE_L10N = True # Habilita o uso de formato de localização
-LANGUAGE_CODE = 'pt-br'
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,7 +44,6 @@ INSTALLED_APPS = [
     'apps.dashboard.apps.DashboardConfig',
     'apps.registrations.apps.RegistrationsConfig',
     'apps.movements.apps.MovementsConfig',
-    'apps.reports.apps.ReportsConfig',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +62,7 @@ ROOT_URLCONF = 'setup.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,11 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'pt-br'
-USE_L10N = True
 
 TIME_ZONE = 'America/Sao_Paulo'
-
-USE_I18N = True
 
 USE_TZ = True
 
@@ -134,7 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'

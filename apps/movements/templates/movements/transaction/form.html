@@ -123,7 +123,7 @@
 
         // 3. Atualiza o campo de saída
         // Usa .toFixed(2) para garantir duas casas decimais
-        document.getElementById('id_amount_paid').value = valorDevido.toFixed(2);
+        document.getElementById('id_amount_paid').value = valorDevido.toFixed(2).replace('.', ',');
     }
 
     // 4. Conecta a função ao evento de alteração de cada campo

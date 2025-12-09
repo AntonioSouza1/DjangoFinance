@@ -3,6 +3,8 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.utils.dateparse import parse_date
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.views.generic.base import ContextMixin
 
@@ -11,6 +13,7 @@ from apps.movements.forms.transaction import TransactionForm
 from apps.utils.mixins import *
 
 import datetime
+from django.utils import timezone
 
 date = datetime.date.today()
 
@@ -150,3 +153,33 @@ class TransactionReportView(LoginRequiredMixin, PermissionRequiredMixin, Success
     login_url = reverse_lazy('login:login')
     permission_required = 'movements.view_transaction'
     raise_exception = False
+
+
+class SettleTransactionView(View, SuccessErrorMessageMixin):
+    def post(self, request, pk):
+
+        transaction = get_object_or_404(Transaction, pk=pk)
+
+        try:
+            if transaction.status == 'Q':
+                messages.error(request, 'Transação já baixada')
+            else:
+                date = parse_date(request.POST.get('date'))
+                if date:
+                    if date < timezone.now().date():
+                        transaction.status = 'Q'
+                        transaction.payment_date = self.request.POST['date']
+                        transaction.save()
+                        messages.success(request, 'Transação baixada com sucesso')
+                    else:
+                        messages.error(request, 'A data informada e maior que a data atual')
+                else:
+                    transaction.status = 'Q'
+                    transaction.payment_date = timezone.now().date()
+                    transaction.save()
+                    messages.success(request, f'Transação baixada com sucesso usando a data: {transaction.payment_date}')
+
+        except Exception as e:
+            messages.error(request, 'Erro ao baixar transação')
+
+        return redirect(reverse_lazy('transaction:list'))

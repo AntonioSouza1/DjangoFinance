@@ -22,28 +22,6 @@ class TransactionForm(forms.ModelForm):
             })
     )
 
-    add = forms.CharField(
-        required=True,
-        error_messages={
-            'required': 'Campo acrescimos é obrigatório'
-        },
-        widget=forms.TextInput(
-            attrs={'placeholder': 'R$ 100,00'}
-        ),
-        localize=True,
-    )
-
-    discount = forms.CharField(
-        required=True,
-        error_messages={
-            'required': 'Campo de desconto é obrigatório'
-        },
-        widget=forms.TextInput(
-            attrs={'placeholder': 'R$ 100,00'}
-        ),
-        localize=True,
-    )
-
     base_value = forms.CharField(
         required=True,
         error_messages={
@@ -54,6 +32,55 @@ class TransactionForm(forms.ModelForm):
         ),
         localize=True,
     )
+
+    def clean_base_value(self):
+        base_value = self.cleaned_data["base_value"]
+        if isinstance(base_value, str):
+            if base_value:
+                base_value = base_value.replace(".", "").replace(",", ".")
+            else:
+                base_value = 0
+        return base_value
+
+    add = forms.CharField(
+        required=False,
+        error_messages={
+            'required': 'Campo acrescimos é obrigatório'
+        },
+        widget=forms.TextInput(
+            attrs={'placeholder': 'R$ 100,00'}
+        ),
+        localize=True,
+    )
+
+    def clean_add(self):
+        add = self.cleaned_data["add"]
+        if isinstance(add, str):
+            if add:
+                add = add.replace(".", "").replace(",", ".")
+            else:
+                add = 0
+        return add
+
+    discount = forms.CharField(
+        required=False,
+        error_messages={
+            'required': 'Campo de desconto é obrigatório'
+        },
+        widget=forms.TextInput(
+            attrs={'placeholder': 'R$ 100,00'}
+        ),
+        localize=True,
+    )
+
+    def clean_discount(self):
+        discount = self.cleaned_data["discount"]
+        if isinstance(discount, str):
+            if discount:
+                discount = discount.replace(".", "").replace(",", ".")
+            else:
+                discount = 0
+        return discount
 
     amount_paid = forms.CharField(
         required=True,
@@ -66,11 +93,14 @@ class TransactionForm(forms.ModelForm):
         localize=True,
     )
 
-    def clean_value(self):
-        value = self.cleaned_data["value"]
-        if isinstance(value, str):
-            value = value.replace(".", "").replace(",", ".")
-        return value
+    def clean_amount_paid(self):
+        amount_paid = self.cleaned_data["amount_paid"]
+        if isinstance(amount_paid, str):
+            if amount_paid:
+                amount_paid = amount_paid.replace(".", "").replace(",", ".")
+            else:
+                amount_paid = 0
+        return amount_paid
 
     due_date = forms.DateField(
         input_formats=DATE_INPUT_FORMATS,  # Adicionado para garantir que o Django aceite a entrada neste formato
