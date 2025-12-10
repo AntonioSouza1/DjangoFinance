@@ -9,6 +9,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = "__all__"
+        exclude = ['user']
 
     description = forms.CharField(
         min_length=3,

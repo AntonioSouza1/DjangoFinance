@@ -1,4 +1,5 @@
 from auditlog.registry import auditlog
+from django.contrib.auth.models import User
 from django.db import models
 from apps.registrations.models.subscription import Subscription
 
@@ -16,6 +17,7 @@ class Transaction(models.Model):
         ('C', 'Cancelado'),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=2, choices=TYPES_CHOICES, verbose_name="Tipo")
     description = models.CharField(max_length=100, verbose_name="Descrição")
     discount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Desconto")
