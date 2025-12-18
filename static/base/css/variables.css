@@ -1,0 +1,130 @@
+:root {
+    --blue: #0063de;
+    --indigo: #6610f2;
+    --purple: #4a0074;
+    --pink: #e83e8c;
+    --red: #cc4400;
+    --orange: #cc4400;
+    --yellow: #ffc107;
+    --green: #008750;
+    --teal: #20c997;
+    --cyan: #17a2b8;
+    --gray: #6c757d;
+    --gray-dark: #343a40;
+    --primary: #1762b8;
+    --secondary: #666e7a;
+
+    --light: #f6f6f7;
+    --dark: #40444d;
+    --black: #000;
+    --dark-blue:     #001f75;
+    --border-color:  #555;
+    --text-light:    #fff;
+    --text-dark:     #333;
+    --white: #ffffff;
+
+    /* Cor padrão sucesso */
+    --success: #065f46;
+    --success-background: #d1fae5;
+    --success-border: #a7f3d0;
+
+    /* Cor padrão alerta */
+    --warning: #92400e;
+    --warning-background: #fef3c7;
+    --warning-border: #fde68a;
+
+    /* Cor padrão perigo */
+    --danger: #991b1b;
+    --danger-background: #fee2e2;
+    --danger-border: #fecaca;
+
+    /* Cor padrão neutro */
+    --neutral: #64748b;
+    --neutral-background: #6366f10f;
+    --neutral-border: #6366f12e;
+
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+        --django-green: #0C4B33;
+
+        --body-fg: #C1CAD2;
+
+        --logo-color: #F1FFF7;
+        --logo-btn: #fff;
+        --logo-btn-text-hover: #000;
+
+        --label-color: #eaeff6;
+
+        /* CORES DE FORMULÁRIO (Novo Bloco) */
+        --input-bg: #1A1D1E; /* Fundo do input mais escuro para maior contraste */
+        --input-text: var(--text-color);
+        --input-border: #495057;
+        --input-focus-border: #0C4B33; /* Destaque Foco: Verde Django */
+        --placeholder-color: #ADB5BD;
+
+        --container-fg: #F8F8F8;
+        --container-block-title: #181d27;
+
+        /* FUNDOS */
+        --body-bg: #1A1D1E;          /* Fundo da Página Escuro */
+        --container-bg: #282C2E;     /* Fundo de Cards, Containers Escuros */
+
+        /* ELEMENTOS */
+        --container-border: #495057;  /* Bordas e Divisores Escuros */
+        --text-color: #F8F9FA;
+
+        /* Para tabela */
+        --color-td-text: #F8F9FA;               /* Texto principal (Claro) */
+        --color-td-bg-default: #212529;          /* Fundo padrão (Cinza Escuro) */
+        --color-td-bg-zebra: #2A3035;            /* Fundo da linha par (Cinza Escuro sutil) */
+        --color-td-bg-hover: #3A4146;            /* Fundo no hover (Cinza mais claro) */
+        --color-td-border: #495057;              /* Bordas (Cinza médio) */
+
+        /* Mantemos o header igual para destaque */
+        --color-header-bg: var(--django-green);
+        --color-header-text: #FFFFFF;
+    }
+
+    html[data-theme="light"], :root {
+        --django-green: #0C4B33;
+
+        --body-fg: #0C3C26;
+
+        --logo-color: #F1FFF7;
+        --logo-btn: #fff;
+        --logo-btn-hover: #fff;
+
+        --label-color: #374151;
+
+        /* CORES DE FORMULÁRIO (Novo Bloco) */
+        --input-bg: #FFFFFF;
+        --input-text: var(--text-color); /* Depende da variável de texto principal já existente */
+        --input-border: #CED4DA;
+        --input-focus-border: #0C4B33; /* Destaque Foco: Verde Django */
+        --placeholder-color: #6C757D;
+
+
+        /* FUNDOS */
+        --body-bg: #F1F9F6;          /* Fundo da Página/Body */
+        --container-bg: #FFFFFF;     /* Fundo de Cards, Containers, Modais */
+
+        /* ELEMENTOS */
+        --container-border: #DEE2E6;  /* Bordas e Divisores */
+        --text-color: #212529;
+
+        /* Para tabela */
+
+        /* Cores das Células de Dados (td) */
+        --color-td-text: #343A40;               /* Texto principal (Escuro) */
+        --color-td-bg-default: #FFFFFF;          /* Fundo padrão (Branco) */
+        --color-td-bg-zebra: #F0FDF4;            /* Fundo da linha par (Verde sutil) */
+        --color-td-bg-hover: #E6F7EF;            /* Fundo no hover (Verde mais claro) */
+        --color-td-border: #DEE2E6;              /* Bordas (Cinza claro) */
+
+        /* Cores do Cabeçalho (th) */
+        --color-header-bg: var(--django-green);
+        --color-header-text: #FFFFFF;
+    }
+}

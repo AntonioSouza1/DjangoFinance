@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'base/css/dialog.css' %}">
+{% endblock %}
+
+{% block content%}
+<div class="title-div">
+    <h2>Cadastro de Forma de Pagamento</h2>
+</div>
+
+<div class="root">
+
+    <div class="form-button">
+        <button type="submit" class="custom-button default" form="form" title="Salvar">Salvar</button>
+        {% if object.pk %}
+            <button type="submit" id="open_delete" class="custom-button danger">Excluir</button>
+        {% endif %}
+        <a href="{% url 'transaction:payment_method_list' %}"><button type="button" class="custom-button outline">Sair</button></a>
+    </div>
+
+    <section class="forms">
+        <form method='POST' id="form" enctype="multipart/form-data">
+            {%csrf_token%}
+            <div class="form-group">
+                <div class="form-item">
+                    <label for="{{ form.name.id_for_label }}">Nome</label>
+                    {{ form.name }}
+                </div>
+            </div>
+        </form>
+    </section>
+
+        <!-- Dialogo para excluir da transação -->
+    {% if object.pk %}
+        <dialog id="delete">
+            <form action="{% url 'transaction:payment_method_delete' object.pk %}" method="post">
+                {% csrf_token %}
+                <h3>Tem certeza que deseja excluir?</h3>
+                <div class="botoes-modal">
+                    <button type="button" class="custom-button default" id="btnCancelarDelete">Cancelar</button>
+                    <button type="submit" class="custom-button secondary">Confirmar</button>
+                </div>
+            </form>
+        </dialog>
+
+    {% endif %}
+</div>
+<script>
+        (function() {
+
+            const modalDelete = document.getElementById('delete');
+            const btnOpenDelete = document.getElementById('open_delete');
+            const btnCloseDelete = document.getElementById('btnCancelarDelete');
+
+            if (btnOpenDelete && modalDelete) {
+                btnOpenDelete.addEventListener('click', () => modalDelete.showModal());
+            }
+
+            if (btnCloseDelete && modalDelete) {
+                btnCloseDelete.addEventListener('click', () => modalDelete.close());
+            }
+        })();
+
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+.filter{
+    display: block;
+    overflow: auto;
+    padding: 10px;
+    margin: 10px;
+    background-color: var(--container-bg);
+    border-radius: 10px;
+    border: 1px solid var(--container-border);
+    width: 100%;
+    box-shadow: 0 2px 10px #1018280a;
+    transition: transform 0.2s ease;
+
+    h3{
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .filter-group{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 2px;
+
+        .filter-item{
+            flex: 1 1 300px;
+            display: flex;
+            flex-direction: column;
+
+            label{
+                color: var(--label-color);
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            input, textarea, select{
+                font-size: 12px;
+                background: var(--input-bg);
+                border: 1px solid var(--container-border);
+                border-radius: 6px;
+                outline: none;
+                padding: 6px;
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            input:focus, textarea:focus, select:focus{
+                border-color:var(--input-border);
+                box-shadow:0 0 0 3px rgba(148,163,184,.25);
+                background: #fff;
+            }
+
+            input[type="checkbox"] {
+                appearance: none;
+                width: 1.25rem;
+                height: 1.25rem;
+                border: 2px solid #ccc;
+                border-radius: 0.25rem;
+                display: inline-block;
+                position: relative;
+            }
+
+            input[type="checkbox"]:checked {
+                background-color: #3b82f6;
+                border-color: #3b82f6;
+            }
+        }
+    }
+    .filter-button {
+        width: 100%;
+        padding: 2px 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        gap: 10px;
+    }
+}

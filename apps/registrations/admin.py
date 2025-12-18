@@ -5,7 +5,8 @@ from apps.registrations.models.card import *
 from apps.registrations.models.bank_account import *
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['service',]
+    list_display = ['user','description','category', 'value', 'status']
+    list_filter = ['user', 'status']
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['category',]

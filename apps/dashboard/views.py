@@ -3,55 +3,76 @@ from django.db.models.aggregates import Sum
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import  View
-import datetime
+from django.utils import timezone
 
 from apps.movements.models.transaction import Transaction
 from apps.registrations.models.subscription import Subscription
+from apps.utils.mixins import *
 
-today = datetime.date.today()
+today = timezone.now().date()
 
-class Dashboard(LoginRequiredMixin, View):
+class Dashboard(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, View):
     login_url = reverse_lazy('login:login')
+
     def get(self, request, *args, **kwargs):
-        subscriptions = Subscription.objects.filter(status='A').count()
+        try:
+            Transaction.objects.filter(
+                user=self.request.user,
+                status='P',
+                due_date__lt=timezone.now().date()  # Filtra transações vencidas
+            ).update(status='V')
 
-        total_subscriptions = Subscription.objects.filter(status='A').aggregate(total=Sum('value'))['total'] or 0
+            subscriptions = Subscription.objects.filter(user=self.request.user, status='A').count()
 
-        transactions_e = Transaction.objects.filter(
-            type='E',
-            status='Q',
-            payment_date__year=today.year,
-            payment_date__month=today.month
-        ).count()
+            total_subscriptions = Subscription.objects.filter(user=self.request.user, status='A').aggregate(total=Sum('value'))['total'] or 0
 
-        total_transactions_e = Transaction.objects.filter(
-            type='E',
-            status='Q',
-            payment_date__year=today.year,
-            payment_date__month=today.month
-        ).aggregate(total=Sum('amount_paid'))['total'] or 0
+            transactions_e = Transaction.objects.filter(
+                user=self.request.user,
+                type='E',
+                status='Q',
+                payment_date__year=today.year,
+                payment_date__month=today.month
+            ).count()
 
-        transactions_s = Transaction.objects.filter(
-            type='S',
-            status='Q',
-            payment_date__year=today.year,
-            payment_date__month=today.month
-        ).count()
+            total_transactions_e = Transaction.objects.filter(
+                user=self.request.user,
+                type='E',
+                status='Q',
+                payment_date__year=today.year,
+                payment_date__month=today.month
+            ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
-        total_transactions_s = Transaction.objects.filter(
-            type='S',
-            status='Q',
-            payment_date__year=today.year,
-            payment_date__month=today.month
-        ).aggregate(total=Sum('amount_paid'))['total'] or 0
+            transactions_s = Transaction.objects.filter(
+                user=self.request.user,
+                type='S',
+                status='Q',
+                payment_date__year=today.year,
+                payment_date__month=today.month
+            ).count()
 
-        context = {
-            'subscriptions': subscriptions,
-            'total_subscriptions': total_subscriptions,
-            'transactions_e': transactions_e,
-            'transactions_s': transactions_s,
-            'total_transactions_e': total_transactions_e,
-            'total_transactions_s': total_transactions_s,
-        }
+            total_transactions_s = Transaction.objects.filter(
+                user=self.request.user,
+                type='S',
+                status='Q',
+                payment_date__year=today.year,
+                payment_date__month=today.month
+            ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
-        return render(request, 'dashboard/dashboard.html', context)
+            transactions_p = Transaction.objects.filter(user=self.request.user, status='P')
+            transactions_v = Transaction.objects.filter(user=self.request.user, status='V')
+
+            context = {
+                'subscriptions': subscriptions,
+                'total_subscriptions': total_subscriptions,
+                'transactions_e': transactions_e,
+                'transactions_s': transactions_s,
+                'total_transactions_e': total_transactions_e,
+                'total_transactions_s': total_transactions_s,
+                'transactions_p': transactions_p,
+                'transactions_v': transactions_v,
+            }
+
+            return render(request, 'dashboard/dashboard.html', context)
+        except Exception as e:
+            messages.error(request, f"Ocorreu um erro ao carregar: {e}")
+            return render(request, 'dashboard/dashboard.html')

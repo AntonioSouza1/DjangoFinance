@@ -1,0 +1,108 @@
+{%extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'base/css/dialog.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="title-div">
+    <h1>Transações</h1>
+
+    <div>
+        {% if transaction.type == 'E' %}
+            <div class="badge badge--success">Entrada</div>
+        {% elif transaction.type == 'S' %}
+            <div class="badge badge--danger">Saida</div>
+        {% else %}
+            <div class="badge">Indefinido</div>
+        {% endif %}
+    </div>
+</section>
+
+<div class="root">
+    <div class="form-button">
+        <a href="{% url 'transaction:list' %}"><button type="button" class="custom-button outline">Sair</button></a>
+    </div>
+    <div class="grid">
+        <div>
+            <h6>Tipo</h6>
+            <p>{{ object.type }}</p>
+        </div>
+
+        <div>
+            <h6>Descrição</h6>
+            <p>{{ object.description }}</p>
+        </div>
+
+        <div>
+            <h6>Discontos</h6>
+            <p>{{ object.discount }}</p>
+        </div>
+
+        <div>
+            <h6>Acrescimos</h6>
+            <p>{{ object.add }}</p>
+        </div>
+
+        <div>
+            <h6>Valor Base</h6>
+            <p>{{ object.base_value }}</p>
+        </div>
+
+        <div>
+            <h6>Valor R$</h6>
+            <p>{{ object.amount_paid }}</p>
+        </div>
+
+        <div>
+            <h6>Data de Emissão</h6>
+            <p>{{ object.issue_date }}</p>
+        </div>
+
+        <div>
+            <h6>Data de Vencimento</h6>
+            <p>{{ object.due_date }}</p>
+        </div>
+
+        <div>
+            <h6>Assinatura</h6>
+            <p>{{ object.subscription }}</p>
+        </div>
+
+        <div>
+            <h6>Categoria</h6>
+            <p>{{ object.category }}</p>
+        </div>
+
+        <div>
+            <h6>Grupo</h6>
+            <p>{{ object.group }}</p>
+        </div>
+
+        <div>
+            <h6>Metodo de Pagamento</h6>
+            <p>{{ object.payment_method }}</p>
+        </div>
+
+        <div>
+            <h6>Status</h6>
+            <p>{{ object.status }}</p>
+        </div>
+
+        <div>
+            <h6>Ultima Atualização</h6>
+            <p>{{ object.updated_at }}</p>
+        </div>
+
+        <div>
+            <h6>Data de Criação</h6>
+            <p>{{ object.created_at }}</p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+

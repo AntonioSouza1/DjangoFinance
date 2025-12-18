@@ -1,8 +1,10 @@
-{%extends 'main/base.html' %}
+{%extends 'base.html' %}
 {% load static %}
+
 {% block head %}
     <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
 {% endblock %}
+
 {% block content %}
 <div id="dashboard">
     <section class="dashboard-grid">
@@ -39,6 +41,55 @@
             </div>
         </div>
 
+    </section>
+    <section>
+        <h1 class="title-div">Proximos Vencimentos</h1>
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <th>Descrição</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                </thead>
+                <tbody>
+                    {% for transaction_p in transactions_p  %}
+                        <tr>
+                            <td>{{ transaction_p.description }}</td>
+                            <td>{{ transaction_p.due_date|date:"d/m/Y" }}</td>
+                            <td>{{ transaction_p.amount_paid }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">Não há registros para serem exibidos</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h1 class="title-div">Vencidos</h1>
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <th>Descrição</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                </thead>
+                <tbody>
+                    {% for transaction_v in transactions_v  %}
+                        <tr>
+                            <td>{{ transaction_v.description }}</td>
+                            <td>{{ transaction_v.due_date|date:"d/m/Y" }}</td>
+                            <td>{{ transaction_v.amount_paid }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">Não há registros para serem exibidos</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 </div>
 {% endblock %}

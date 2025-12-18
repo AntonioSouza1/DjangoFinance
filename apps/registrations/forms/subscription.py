@@ -6,18 +6,41 @@ class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
         fields = '__all__'
+        exclude = ('user',)
 
-    service = forms.CharField(
+    def __init__(self, user, *args, **kwargs):
+        # Recebemos o 'user' como argumento extra antes de iniciar o form
+        super(SubscriptionForm, self).__init__(*args, **kwargs)
+
+        # AQUI É O FILTRO:
+        # Estamos dizendo: "Neste campo 'category', carregue apenas
+        # as categorias onde o campo 'user' for igual ao usuário logado"
+        self.fields['category'].queryset = Category.objects.filter(user=user)
+
+    description = forms.CharField(
         min_length=3,
         error_messages={
-            'required': 'Campo serviço é obrigatório.',
-            'min_length': 'Certifique-se de que o campo serviço tenha no mínimo 3 caracteres.'
+            'required': 'Campo descrição é obrigatório.',
+            'min_length': 'Certifique-se de que o campo descrição tenha no mínimo 3 caracteres.'
         },
         widget=forms.TextInput(
         attrs={
-            'placeholder': 'Serviço',
+            'placeholder': 'Descrição',
 
         })
+    )
+
+    supplier = forms.CharField(
+        min_length=3,
+        required=False,
+        error_messages={
+            'min_length': 'Certifique-se de que o campo descrição tenha no mínimo 3 caracteres.'
+        },
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Fornecedor',
+
+            })
     )
 
     value = forms.CharField(
@@ -53,7 +76,7 @@ class SubscriptionForm(forms.ModelForm):
         )
     )
 
-    description = forms.CharField(
+    observation = forms.CharField(
         required=False,
         widget=forms.Textarea(
             attrs={'placeholder':'Descrição',
@@ -84,6 +107,7 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = '__all__'
+        exclude = ('user',)
 
     category = forms.CharField(
         widget=forms.TextInput(

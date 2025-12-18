@@ -1,0 +1,189 @@
+header{
+    background-color: var(--django-green);
+    box-shadow: 100px var(--django-green);
+    padding: 8px 3%;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 50px;
+
+        .logo{
+            width: auto;
+            font-size: 1.3rem;
+            color: var(--logo-color);
+        }
+
+        .nav-links{
+            display: none;
+            list-style: none;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            padding: 1rem;
+
+            &.show_mobile{
+                display: flex;
+            }
+
+            .nav-item{
+                text-align: center;
+
+                button {
+                    border: none;
+                    background: transparent;
+                    border-radius: 8px;
+                    padding: 4px 10px;
+                    cursor: pointer;
+                    color: var(--logo-btn);
+                    font-size: 1.2rem;
+                    font-weight: 500;
+
+                    a {
+                        color: var(--logo-btn);
+                    }
+
+                    &:hover{
+                        background-color: var(--logo-btn);
+                        color: var(--django-green);
+                        border: none;
+
+                        a{
+                            border-radius: 8px;
+                            color: var(--django-green);
+                        }
+                    }
+                }
+
+                /* Container principal (opcional, apenas para posicionamento) */
+                &.dropdown {
+                    display: inline-block; /* Fica alinhado com o botão */
+                }
+
+                /* O conteúdo do menu (escondido por padrão) */
+                .dropdown-content {
+                    display: none;
+
+                    li a {
+                        display: block;
+                        padding: 6px 16px;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+
+                        &:hover {
+                            border-radius: 8px;
+                            background-color: white;
+                            color: var(--django-green);
+                        }
+                    }
+                }
+
+                /* Classe que será adicionada/removida pelo JavaScript para MOSTRAR o menu */
+                .show {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+@media(min-width:1200px){
+    header{
+        .navbar{
+            .logo{
+                font-size: 1.5rem;
+            }
+
+            .btn-mobile{
+                display: none;
+
+            }
+
+            .btn-default{
+                display: block;
+            }
+
+            .nav-links{
+                display: flex;
+                flex-direction: row;
+                position: static;
+                gap: 1rem;
+                width: auto;
+                padding: 0;
+
+                .nav-item{
+                    display: flex;
+                    flex-direction: row;
+                    position: static;
+                    gap: 0.6rem;
+                    width: auto;
+                    padding: 0;
+
+                    button{
+                        border: none;
+                        background: transparent;
+                        border-radius: 8px;
+                        padding: 4px 10px;
+                        font-size: 1rem;
+                    }
+
+                    #user_name{
+                        border-radius: 8px;
+                        background-color: white;
+                        color: var(--django-green);
+                    }
+
+                    &.dropdown {
+                        position: relative;
+                        display: inline-block; /* Fica alinhado com o botão */
+                    }
+
+                    /* O conteúdo do menu (escondido por padrão) */
+                    .dropdown-content {
+                        display: none;
+                        position: absolute;
+                        left: 0;
+                        top: 150%;
+                        margin-top: 5px;
+                        border-radius: 8px;
+                        min-width: 180px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                        z-index: 10;
+                        padding: 8px 6px;
+                        background-color: var(--django-green);
+
+                        li a {
+                            display: block;
+                            padding: 6px 16px;
+                            color: white;
+                            text-decoration: none;
+                            font-size: 14px;
+                            font-weight: 500;
+
+                            &:hover {
+                                border-radius: 8px;
+                                background-color: white;
+                                color: var(--django-green);
+                            }
+                        }
+                    }
+
+                    /* Classe que será adicionada/removida pelo JavaScript para MOSTRAR o menu */
+                    .show {
+                        display: block;
+                    }
+                }
+
+            }
+        }
+    }
+}

@@ -14,11 +14,11 @@ class LogListView(ListView):
     context_object_name = 'log_entries'
 
     # Opcional: Define a paginação (exibindo 25 logs por página)
-    paginate_by = 25
+    paginate_by = 10
 
     def get_queryset(self):
         # Consulta para ordenar os logs do mais recente para o mais antigo (recomendado)
-        queryset = super().get_queryset().order_by('-timestamp')
+        queryset = super().get_queryset().filter(actor=self.request.user).order_by('-timestamp')
 
         # Opcional: Implemente filtros aqui se necessário
         # Ex: Filtrar por um modelo específico, se o usuário clicar em um botão

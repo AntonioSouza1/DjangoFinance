@@ -1,11 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 
-from apps.movements.models.transaction import Transaction
 from apps.registrations.forms.subscription import SubscriptionForm, CategoryForm
 from apps.registrations.models.subscription import Subscription, Category
-from apps.registrations.models.supplier import Supplier
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from apps.utils.mixins import *
 from django.contrib import messages
@@ -14,20 +12,12 @@ from django.views.generic.base import ContextMixin
 
 
 #Lista de Categorias
-class CategoryList(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, ListView):
+class CategoryListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
     model = Category
     template_name = 'registrations/subscription/category/list.html'
     paginate_by = 10
     context_object_name = 'categories'
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.view_category'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para acessar a lista de categorias.")
-                return redirect(reverse_lazy('subscriptions:list'))
-            return super().handle_no_permission()
 
     def get_queryset(self):
         f_id = self.request.GET.get('f_id')
@@ -40,30 +30,22 @@ class CategoryList(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMess
         if f_category:
             filters['category__icontains'] = f_category
 
-        categories = Category.objects.filter(**filters)
+        categories = Category.objects.filter(user=self.request.user, **filters)
 
         return categories
 
     def get_context_data(self, **kwargs):
-        context = super(CategoryList, self).get_context_data(**kwargs)
+        context = super(CategoryListView, self).get_context_data(**kwargs)
         context["f_id"] = self.request.GET.get('f_id', '')
         context["f_category"] = self.request.GET.get('f_category', '')
 
         return context
 
 #Excluir categoria
-class CategoryDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class CategoryDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
     model = Category
     success_url = reverse_lazy("subscription:category_list")
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.delete_category'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para excluir uma categoria.")
-                return redirect(reverse_lazy('subscription:category_list'))
-            return super().handle_no_permission()
 
     def post(self, request, pk):
         print(pk)
@@ -78,37 +60,25 @@ class CategoryDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         return redirect(self.success_url)
 
 #adicionar categoria
-class CategoryCreate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, CreateView):
+class CategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = 'registrations/subscription/category/form.html'
     success_url = reverse_lazy("subscription:category_list")
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.add_category'
-    raise_exception = False
 
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para criar uma categoria.")
-                return redirect(reverse_lazy('subscription:category_list'))
-            return super().handle_no_permission()
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 #Editar categoria
-class CategoryUpdate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, UpdateView):
+class CategoryUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = 'registrations/subscription/category/form.html'
     success_url = reverse_lazy('subscription:category_list')
     context_object_name = 'category'
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.change_subscription'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para editar uma categoria.")
-                return redirect(reverse_lazy('subscription:category_list'))
-            return super().handle_no_permission()
 
 
 class SubscriptionMixin(ContextMixin):
@@ -116,7 +86,7 @@ class SubscriptionMixin(ContextMixin):
     def get_queryset(self):
         # 1. Pegue os filtros do GET
         f_id = self.request.GET.get('f_id', '')
-        f_service = self.request.GET.get('f_service', '')  # <-- Bug da vírgula corrigido
+        f_description = self.request.GET.get('f_description', '')  # <-- Bug da vírgula corrigido
         f_status = self.request.GET.get('f_status', '')
         f_category = self.request.GET.get('f_category', '')
 
@@ -124,8 +94,8 @@ class SubscriptionMixin(ContextMixin):
 
         if f_id:
             filters['id'] = f_id  # <-- Use a variável, não chame o GET de novo
-        if f_service:
-            filters['service__icontains'] = f_service
+        if f_description:
+            filters['description__icontains'] = f_description
         if f_status:
             filters['status'] = f_status
         if f_category:
@@ -134,9 +104,9 @@ class SubscriptionMixin(ContextMixin):
         # 2. Pegue a queryset base da View (importante!)
         #    Isso permite que o Mixin funcione em qualquer ListView
         if hasattr(self, 'model'):
-            base_queryset = self.model._default_manager.all()
+            base_queryset = self.model._default_manager.filter(user=self.request.user)
         else:
-            base_queryset = Subscription.objects.all()  # Fallback
+            base_queryset = Subscription.objects.filter(user=self.request.user)  # Fallback
 
         return base_queryset.filter(**filters)
 
@@ -151,83 +121,66 @@ class SubscriptionMixin(ContextMixin):
         context["f_category"] = self.request.GET.get('f_category', '')
 
         # 3. Passe os dados necessários para os <select>
-        context["categories"] = Category.objects.all()
+        context["categories"] = Category.objects.filter(user=self.request.user)
 
         return context
 
 #Lista de Assinaturas
-class SubscriptionsList(LoginRequiredMixin, PermissionRequiredMixin, SubscriptionMixin, SuccessErrorMessageMixin, ListView):
+class SubscriptionsListView(LoginRequiredMixin, UserIsOwnerMixin, SubscriptionMixin, SuccessErrorMessageMixin, ListView):
     model = Subscription
     template_name = 'registrations/subscription/list.html'
     context_object_name = 'subscriptions'
     login_url = reverse_lazy('login:login')
-    permission_required = 'registrations.view_subscription'
-    raise_exception = False
-    paginate_by = 10
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para acessar a lista de assinaturas.")
-                return redirect(reverse_lazy('dashboard:home'))
-            return super().handle_no_permission()
 
 #Cria assinatura
-class SubscriptionCreate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, CreateView):
+class SubscriptionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Subscription
     form_class = SubscriptionForm
     template_name = 'registrations/subscription/form.html'
     success_url = reverse_lazy('subscription:list')
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.add_subscription'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para criar uma assintatura.")
-                return redirect(reverse_lazy('subscriptions_list'))
-            return super().handle_no_permission()
 
     def dispatch(self, request, *args, **kwargs):
-        if not Category.objects.exists():
+        if not Category.objects.filter(user=self.request.user).exists():
             messages.error(request, 'Não existem categorias cadastradas.')
             return redirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Injeta o user nos argumentos do formulário
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_invalid(form)
+
 #editar assinatura
-class SubscriptionUpdate(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, UpdateView):
+class SubscriptionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Subscription
     form_class = SubscriptionForm
     template_name = 'registrations/subscription/form.html'
     success_url = reverse_lazy('subscription:list')
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.change_subscription'
-    raise_exception = False
 
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para editar uma assinatura.")
-                return redirect(reverse_lazy('subscriptions_list'))
-            return super().handle_no_permission()
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Injeta o user nos argumentos do formulário
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['transactions'] = self.object.transaction.all().order_by('-updated_at')
+        context['transactions'] = self.object.transaction.filter(user=self.request.user).order_by('-updated_at')
         print(context['transactions'])
 
         return context
 
 #excluir assinatura
-class SubscriptionDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class SubscriptionDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
     success_url = reverse_lazy('subscription:list')
     login_url = reverse_lazy('login:login')
-    permission_required = 'subscription.delete_subscription'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para excluir uma assinatura.")
-                return redirect(reverse_lazy('subscription:list'))
-            return super().handle_no_permission()
 
     def post(self, request, pk):
         subscription = get_object_or_404(Subscription, pk=pk)
@@ -238,16 +191,8 @@ class SubscriptionDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
             messages.error(request, f"Erro ao excluir assinatura: {e}")
         return redirect(self.success_url)
 
-class SubscriptionReport(LoginRequiredMixin, PermissionRequiredMixin, SubscriptionMixin, ListView):
+class SubscriptionReportView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, SubscriptionMixin, ListView):
     model = Subscription
     template_name = 'registrations/subscription/report.html'
     context_object_name = 'subscriptions'
     login_url = reverse_lazy('login:login')
-    permission_required = 'registrations.view_subscription'
-    raise_exception = False
-
-    def handle_no_permission(self):
-            if self.request.user.is_authenticated:
-                messages.error(self.request, "Você não tem permissão para criar uma assintatura.")
-                return redirect(reverse_lazy('subscriptions_list'))
-            return super().handle_no_permission()

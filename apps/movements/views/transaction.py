@@ -1,27 +1,263 @@
+import calendar
 from django.contrib.messages.context_processors import messages
-from django.db.models import Sum
-from django.shortcuts import render, redirect, get_object_or_404
-from django.template.context_processors import request
+from django.db.models import Sum, DecimalField, ProtectedError
+from django.db.models.functions import Coalesce
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.dateparse import parse_date
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.views.generic.base import ContextMixin
-
-from apps.movements.models.transaction import Transaction
-from apps.movements.forms.transaction import TransactionForm
+from apps.movements.models.transaction import Transaction, TransactionCategory, TransactionGroup, TransactionPaymentMethod
+from apps.movements.forms.transaction import TransactionForm, TransactionCategoryForm, TransactionGroupForm
 from apps.utils.mixins import *
-
-import datetime
-from django.utils import timezone
-
-date = datetime.date.today()
-
 from django.views.generic.base import ContextMixin
 from django.db.models import Sum
+from django.utils import timezone
+
 from datetime import date
 
+#Categorias de Transações
+
+# Lista de Categorias
+class TransactionCategoryListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
+    model = TransactionCategory
+    template_name = 'movements/transaction/category/list.html'
+    paginate_by = 10
+    context_object_name = 'categories'
+    login_url = reverse_lazy('login:login')
+
+    #filtros passados via GET
+    def get_queryset(self):
+        f_name = self.request.GET.get('f_name')
+
+        filters = {}
+
+        if f_name:
+            filters['name__icontains'] = f_name
+
+        categories = TransactionCategory.objects.filter(user=self.request.user, **filters)
+
+        return categories
+
+    #Contexto enviado para o template
+    def get_context_data(self, **kwargs):
+        context = super(TransactionCategoryListView, self).get_context_data(**kwargs)
+        context["f_name"] = self.request.GET.get('f_name', '')
+        context["total"] = TransactionCategory.objects.filter(user=self.request.user).count()
+
+        return context
+
+# Adicionar categoria
+class TransactionCategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
+    model = TransactionCategory
+    form_class = TransactionCategoryForm
+    template_name = 'movements/transaction/category/form.html'
+    success_url = reverse_lazy("transaction:category_list")
+    login_url = reverse_lazy('login:login')
+
+    # Adcionar o id do usuário logado ao formulário que será salvo
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+# Editar categoria
+class TransactionCategoryUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
+    model = TransactionCategory
+    form_class = TransactionCategoryForm
+    template_name = 'movements/transaction/category/form.html'
+    success_url = reverse_lazy('transaction:category_list')
+    context_object_name = 'category'
+    login_url = reverse_lazy('login:login')
+
+# Excluir categoria
+class TransactionCategoryDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
+    model = TransactionCategory
+    success_url = reverse_lazy("transaction:category_list")
+    login_url = reverse_lazy('login:login')
+
+    def post(self, request, pk):
+
+        category = get_object_or_404(TransactionCategory, pk=pk)
+
+        try:
+            category.delete()
+            messages.success(request, f"Categoria '{category}' excluída com sucesso.")
+        except ProtectedError:
+            messages.error(request, "Não foi possível excluir a categoria. Ela está vinculada a outros cadastros.")
+        except Exception as e:
+            messages.error(request, f"Erro ao excluir categoria: {e}")
+        return redirect(self.success_url)
+
+#Grupos de Transações
+
+# Lista de Grupos
+class TransactionGroupListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
+    model = TransactionGroup
+    template_name = 'movements/transaction/group/list.html'
+    paginate_by = 10
+    context_object_name = 'groups'
+    login_url = reverse_lazy('login:login')
+
+    # filtros passados via GET
+    def get_queryset(self):
+        f_name = self.request.GET.get('f_name')
+
+        filters = {}
+
+        if f_name:
+            filters['name__icontains'] = f_name
+
+        groups = TransactionGroup.objects.filter(user=self.request.user, **filters)
+
+        return groups
+
+    # Contexto enviado para o template
+    def get_context_data(self, **kwargs):
+        context = super(TransactionGroupListView, self).get_context_data(**kwargs)
+        context["f_name"] = self.request.GET.get('f_name', '')
+        context["total"] = TransactionGroup.objects.filter(user=self.request.user).count()
+
+        return context
+
+
+# Adicionar grupo
+class TransactionGroupCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
+    model = TransactionGroup
+    form_class = TransactionGroupForm
+    template_name = 'movements/transaction/group/form.html'
+    success_url = reverse_lazy("transaction:group_list")
+    login_url = reverse_lazy('login:login')
+
+    #Adcionar o id do usuário logado ao formulário que será salvo
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+# Editar grupo
+class TransactionGroupUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
+    model = TransactionGroup
+    form_class = TransactionGroupForm
+    template_name = 'movements/transaction/group/form.html'
+    success_url = reverse_lazy('transaction:group_list')
+    context_object_name = 'group'
+    login_url = reverse_lazy('login:login')
+
+
+# Excluir grupo
+class TransactionGroupDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
+    model = TransactionGroup
+    success_url = reverse_lazy("transaction:group_list")
+    login_url = reverse_lazy('login:login')
+
+    def post(self, request, pk):
+
+        group = get_object_or_404(TransactionGroup, pk=pk)
+
+        try:
+            group.delete()
+            messages.success(request, f"Grupo '{group}' excluído com sucesso.")
+        except ProtectedError:
+            messages.error(request, "Não foi possível excluir o grupo. Ela está vinculada a outros cadastros.")
+        except Exception as e:
+            messages.error(request, f"Erro ao excluir grupo: {e}")
+        return redirect(self.success_url)
+
+#Formas de Pagamento de Transações
+
+# Lista de Formas de Pagamento
+class TransactionPaymentMethodListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
+    model = TransactionPaymentMethod
+    template_name = 'movements/transaction/payment/list.html'
+    paginate_by = 10
+    context_object_name = 'payments'
+    login_url = reverse_lazy('login:login')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Se NÃO existirem métodos, crie e depois continue (retorne o resultado da view)
+        if not TransactionPaymentMethod.objects.filter(user=self.request.user).exists():
+            standard_payment_methods = ['Dinheiro', 'Boleto', 'Cartão de Crédito', 'Cartão de debito', 'Pix']
+
+            for default_payment_method in standard_payment_methods:
+                TransactionPaymentMethod.objects.get_or_create(
+                    user=request.user,
+                    name__iexact=default_payment_method,
+                    defaults={'name': default_payment_method}
+                )
+
+            # Não precisamos de 'return' aqui, pois a linha abaixo fará o retorno final
+            # Mas vamos manter o retorno para clareza e evitar confusão na lógica
+            return super().dispatch(request, *args, **kwargs)
+
+        # Se a condição 'if' não foi atendida (os métodos já existiam),
+        # o fluxo simplesmente continua e retorna o resultado da view normalmente.
+        return super().dispatch(request, *args, **kwargs)
+
+    # filtros passados via GET
+    def get_queryset(self):
+        f_name = self.request.GET.get('f_name')
+
+        filters = {}
+
+        if f_name:
+            filters['name__icontains'] = f_name
+
+        payments = TransactionPaymentMethod.objects.filter(user=self.request.user, **filters)
+
+        return payments
+
+    # Contexto enviado para o template
+    def get_context_data(self, **kwargs):
+        context = super(TransactionPaymentMethodListView, self).get_context_data(**kwargs)
+        context["f_name"] = self.request.GET.get('f_name', '')
+        context["total"] = TransactionPaymentMethod.objects.filter(user=self.request.user).count()
+
+        return context
+
+
+# Adicionar Forma de Pagamento
+class TransactionPaymentMethodCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
+    model = TransactionPaymentMethod
+    form_class = TransactionGroupForm
+    template_name = 'movements/transaction/payment/form.html'
+    success_url = reverse_lazy("transaction:payment_method_list")
+    login_url = reverse_lazy('login:login')
+
+    #Adcionar o id do usuário logado ao formulário que será salvo
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+# Editar Forma de Pagamento
+class TransactionPaymentMethodUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
+    model = TransactionPaymentMethod
+    form_class = TransactionGroupForm
+    template_name = 'movements/transaction/payment/form.html'
+    success_url = reverse_lazy('transaction:payment_method_list')
+    context_object_name = 'payment_method'
+    login_url = reverse_lazy('login:login')
+
+
+# Excluir Forma de Pagamento
+class TransactionPaymentMethodDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
+    model = TransactionPaymentMethod
+    success_url = reverse_lazy("transaction:payment_method_list")
+    login_url = reverse_lazy('login:login')
+
+    def post(self, request, pk):
+
+        PaymentMethod = get_object_or_404(TransactionPaymentMethod, pk=pk)
+
+        try:
+            PaymentMethod.delete()
+            messages.success(request, f"Metodo de Pagamento: '{PaymentMethod}' excluído com sucesso.")
+        except ProtectedError:
+            messages.error(request, "Não foi possível excluir o metodo de pagamento. Ele está vinculada a outros cadastros.")
+        except Exception as e:
+            messages.error(request, f"Erro ao excluir grupo: {e}")
+        return redirect(self.success_url)
 
 class TransactionListMixin(ContextMixin):
     """
@@ -35,50 +271,61 @@ class TransactionListMixin(ContextMixin):
     def get_queryset(self):
         # 1. Pega a QuerySet base da View principal (ex: Transaction.objects.all())
         # Isso é vital para o Mixin funcionar com qualquer Model
-        queryset = super().get_queryset()
-
-        # 2. APLICA O MULTI-TENANCY (Segurança Primeiro)
-        # Garante que o usuário só veja os dados dele antes de qualquer filtro
-        queryset = queryset.filter(user=self.request.user)
-
         # 3. Captura os parâmetros do GET
-        data = self.request.GET
-
-        # Define defaults apenas se necessário
-        f_id = data.get('f_id')
-        f_description = data.get('f_description')
-        f_due_date_of = data.get('f_due_date_of')
-        f_due_date = data.get('f_due_date')
-        f_type = data.get('f_type')
-        f_status = data.get('f_status', 'T')
+        f_id = self.request.GET.get('f_id', '')
+        f_description = self.request.GET.get('f_description', '')
+        f_due_date_of = self.request.GET.get('f_due_date_of', '')  # vencimento de
+        f_due_date = self.request.GET.get('f_due_date', '')  # até
+        f_type = self.request.GET.get('f_type', '')
+        f_status = self.request.GET.get('f_status', 'T')
+        f_category = self.request.GET.get('f_category', '')
+        f_group = self.request.GET.get('f_group', '')
+        f_payment = self.request.GET.get('f_payment', '')
 
         filters = {}
+
+        today = date.today()
+
+        first_day = today.replace(day=1)
+
+        # CORREÇÃO AQUI:
+        # O _ serve para ignorar o primeiro valor (dia da semana)
+        # Pegamos apenas o 'last_day_number' (ex: 30, 31 ou 28)
+        _, last_day_number = calendar.monthrange(today.year, today.month)
+
+        # Agora passamos o número inteiro correto
+        last_day = today.replace(day=last_day_number)
 
         if f_id:
             filters['id'] = f_id
         if f_description:
             filters['description__icontains'] = f_description
         if f_due_date_of:
-            filters['due_date__gte'] = f_due_date_of
+            filters['due_date__gte'] = f_due_date_of #de
         if f_due_date:
-            filters['due_date__lte'] = f_due_date
+            filters['due_date__lte'] = f_due_date #ate
         if f_status and f_status != 'T':
             filters['status'] = f_status
         if f_type:
             filters['type'] = f_type
+        if f_category:
+            filters['category'] = f_category
+        if f_group:
+            filters['group'] = f_group
+        if f_payment:
+            filters['payment_method'] = f_payment
 
-        # Lógica de Default: Se não tem filtros explícitos, mostra o mês atual
-        # Nota: verifique se isso não conflita com a navegação do usuário
-        has_filters = any([f_id, f_description, f_due_date_of, f_due_date, f_type, (f_status != 'T')])
+        if not filters:
+            filters['due_date__gte'] = first_day  # de
+            filters['due_date__lte'] = last_day  # ate
+            if not f_status:
+                filters['status__in'] = ['P', 'V']
 
-        if not has_filters:
-            today = date.today()
-            filters['due_date__year'] = today.year
-            filters['due_date__month'] = today.month
-            # Se não tem status definido, pega pendentes e vencidos?
-            # filters['status__in'] = ['P', 'V']
-
-        return queryset.filter(user=self.request.user, **filters)
+        if hasattr(self, 'model'):
+            base_queryset = self.model._default_manager.filter(user=self.request.user)
+        else:
+            base_queryset = Transaction.objects.filter(user=self.request.user)
+        return base_queryset.filter(**filters)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -88,82 +335,118 @@ class TransactionListMixin(ContextMixin):
 
         # Agregações
         # Dica: Use (Result or 0) para evitar que retorne "None" se não houver dados
-        total_output = queryset_filtrada.filter(type='S').aggregate(s=Sum('amount_paid'))['s'] or 0
-        total_input = queryset_filtrada.filter(type='E').aggregate(s=Sum('amount_paid'))['s'] or 0
+        total_output_agg = queryset_filtrada.filter(type='S').aggregate(
+            total=Coalesce(
+                Sum('amount_paid'),
+                0,
+                output_field=DecimalField()  # <--- O DJANGO PRECISA DISSO
+            )
+        )
 
-        # Atualiza o contexto com os totais
-        context["total_output"] = total_output
-        context["total_input"] = total_input
-        context["saldo"] = total_input - total_output  # Opcional: já manda o saldo
+        total_input_agg = queryset_filtrada.filter(type='E').aggregate(
+            total=Coalesce(
+                Sum('amount_paid'),
+                0,
+                output_field=DecimalField()  # <--- AQUI TAMBÉM
+            )
+        )
 
-        # Retorna os filtros para manter o formulário preenchido no template
-        # Dica: passar request.GET direto economiza linhas
-        context.update(self.request.GET.dict())
-
-        # Garante defaults no contexto se não vieram no GET
-        if 'f_status' not in context: context['f_status'] = 'T'
+        context["f_id"] = self.request.GET.get('f_id', '')
+        context["f_description"] = self.request.GET.get('f_description', '')
+        context["f_due_date_of"] = self.request.GET.get('f_due_date_of', '')
+        context["f_due_date"] = self.request.GET.get('f_due_date','')
+        context["f_type"] = self.request.GET.get('f_type', '')
+        context["f_status"] = self.request.GET.get('f_status', 'T')
+        context["total_output"] = total_output_agg['total']
+        context["total_input"] = total_input_agg['total']
+        context["f_category"] = self.request.GET.get('f_category', '')
+        context["f_group"] = self.request.GET.get('f_group', '')
+        context["f_payment"] = self.request.GET.get('f_payment', '')
+        context["payment_methods"] = TransactionPaymentMethod.objects.filter(user=self.request.user)
+        context["groups"] = TransactionGroup.objects.filter(user=self.request.user)
+        context["categories"] = TransactionCategory.objects.filter(user=self.request.user)
 
         return context
 
-class TransactionListView(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
+class TransactionListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
     model = Transaction
     template_name = "movements/transaction/list.html"
     context_object_name = "transactions"
     login_url = reverse_lazy('login:login')
-    permission_required = 'movements.view_transaction'
-    raise_exception = False
     paginate_by = 10
 
-    def handle_no_permission(self):
-        if self.request.user.is_authenticated:
-            messages.error(self.request, "Você não tem permissão para acessar a lista de transações.")
-            return redirect(reverse_lazy('dashboard:home'))
-        return super().handle_no_permission()
+    def dispatch(self, request, *args, **kwargs):
+        Transaction.objects.filter(
+            user=self.request.user,
+            status='P',
+            due_date__lt=timezone.now().date()  # Filtra transações vencidas
+        ).update(status='V')
+        return super().dispatch(request, *args, **kwargs)
 
 
-class TransactionCreateView(LoginRequiredMixin, PermissionRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
+class TransactionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Transaction
     form_class = TransactionForm
     template_name = "movements/transaction/form.html"
     success_url = reverse_lazy("transaction:list")
-    permission_required = 'movements.add_transaction'
+    login_url = reverse_lazy('login:login')
 
-    def handle_no_permission(self):
-        if self.request.user.is_authenticated:
-            messages.error(self.request, "Você não tem permissão criar uma nova transação.")
-            return redirect(reverse_lazy('transaction:list'))
-        return super().handle_no_permission()
+    def dispatch(self, request, *args, **kwargs):
+        # Se NÃO existirem métodos, crie e depois continue (retorne o resultado da view)
+        if not TransactionPaymentMethod.objects.filter(user=self.request.user).exists():
+            standard_payment_methods = ['Dinheiro', 'Boleto', 'Cartão de Crédito', 'Cartão de debito', 'Pix']
+
+            for default_payment_method in standard_payment_methods:
+                TransactionPaymentMethod.objects.get_or_create(
+                    user=request.user,
+                    name__iexact=default_payment_method,
+                    defaults={'name': default_payment_method}
+                )
+
+            # Não precisamos de 'return' aqui, pois a linha abaixo fará o retorno final
+            # Mas vamos manter o retorno para clareza e evitar confusão na lógica
+            return super().dispatch(request, *args, **kwargs)
+
+        # Se a condição 'if' não foi atendida (os métodos já existiam),
+        # o fluxo simplesmente continua e retorna o resultado da view normalmente.
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # Adiciona o usuário logado aos argumentos
+        return kwargs
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-
-class TransactionUpdateView(LoginRequiredMixin, PermissionRequiredMixin,  UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
+class TransactionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Transaction
     form_class = TransactionForm
     template_name = "movements/transaction/form.html"
     success_url = reverse_lazy("transaction:list")
-    permission_required = 'movements.change_transaction'
-    raise_exception = False
 
-    def handle_no_permission(self):
-        if self.request.user.is_authenticated:
-            messages.error(self.request, "Você não tem permissão editer uma nova transição.")
-            return redirect(reverse_lazy('transaction:list'))
-        return super().handle_no_permission()
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # Adiciona o usuário logado aos argumentos
+        return kwargs
 
-class TransactionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, DeleteView):
+    def dispatch(self, request, *args, **kwargs):
+        transaction = self.get_object()
+        if transaction.status == 'Q':
+            messages.error(request, 'Não e possivel editar uma transação já baixada')
+            return redirect('transaction:list')
+        return super().dispatch(request, *args, **kwargs)
+
+class TransactionDetailView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DetailView):
+    model = Transaction
+    form_class = TransactionForm
+    template_name = "movements/transaction/detail.html"
+
+
+class TransactionDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
     success_url = reverse_lazy('transaction:list')
     login_url = reverse_lazy('login:login')
-    permission_required = 'movements.delete_transaction'
-    raise_exception = False
-
-    def handle_no_permission(self):
-        if self.request.user.is_authenticated:
-            messages.error(self.request, "Você não tem permissão para excluir uma transação.")
-            return redirect(reverse_lazy('transaction:list'))
-        return super().handle_no_permission()
 
     def post(self, request, pk):
         transaction = get_object_or_404(Transaction, pk=pk)
@@ -177,16 +460,13 @@ class TransactionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Success
             messages.error(request, f"Erro ao excluir transação: {e}")
         return redirect(self.success_url)
 
-class TransactionReportView(LoginRequiredMixin, PermissionRequiredMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
+class TransactionReportView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
     model = Transaction
     template_name = "movements/transaction/report.html"
     context_object_name = "transactions"
     login_url = reverse_lazy('login:login')
-    permission_required = 'movements.view_transaction'
-    raise_exception = False
 
-
-class SettleTransactionView(View, SuccessErrorMessageMixin):
+class SettleTransactionView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, View):
     def post(self, request, pk):
 
         transaction = get_object_or_404(Transaction, pk=pk)
@@ -195,20 +475,26 @@ class SettleTransactionView(View, SuccessErrorMessageMixin):
             if transaction.status == 'Q':
                 messages.error(request, 'Transação já baixada')
             else:
-                date = parse_date(request.POST.get('date'))
-                if date:
-                    if date < timezone.now().date():
-                        transaction.status = 'Q'
-                        transaction.payment_date = self.request.POST['date']
-                        transaction.save()
-                        messages.success(request, 'Transação baixada com sucesso')
+                payment_method = self.request.POST['payment_method']
+                date = parse_date(self.request.POST['date'])
+
+                if payment_method:
+                    if date:
+                        if date < timezone.now().date():
+                            transaction.status = 'Q'
+                            transaction.payment_method = self.request.POST['payment_method']
+                            transaction.payment_date = self.request.POST['date']
+                            transaction.save()
+                            messages.success(request, 'Transação baixada com sucesso')
+                        else:
+                            messages.error(request, 'A data informada e maior que a data atual')
                     else:
-                        messages.error(request, 'A data informada e maior que a data atual')
+                        transaction.status = 'Q'
+                        transaction.payment_date = timezone.now().date()
+                        transaction.save()
+                        messages.success(request, f'Transação baixada com sucesso usando a data: {transaction.payment_date}')
                 else:
-                    transaction.status = 'Q'
-                    transaction.payment_date = timezone.now().date()
-                    transaction.save()
-                    messages.success(request, f'Transação baixada com sucesso usando a data: {transaction.payment_date}')
+                    messages.error(request, 'Não informado o metodo de pagamento')
 
         except Exception as e:
             messages.error(request, 'Erro ao baixar transação')

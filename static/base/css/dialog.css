@@ -1,0 +1,45 @@
+.table-btn{
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+dialog {
+    margin: auto;        /* Margem automática nos 4 lados */
+    inset: 0;           /* Garante que o elemento 'saiba' os limites da tela */
+
+    /* Tamanho e Layout */
+            /* Ocupa 90% em celulares */
+      /* Trava em 400px em telas grandes */
+    padding: 2rem;      /* Espaçamento interno generoso */
+
+    /* Visual Moderno */
+    border: none;
+    border-radius: 16px; /* Cantos bem arredondados */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra suave para dar profundidade */
+    background-color: var(--container-bg);
+    color: var(--text-color);
+
+    /* Animação de Entrada */
+    animation: surgimentoSuave 0.3s ease-out;
+}
+
+/* Estilo do fundo escuro (backdrop) nativo do dialog */
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Organização interna do formulário */
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.botoes-modal {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}

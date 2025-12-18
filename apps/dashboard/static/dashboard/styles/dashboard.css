@@ -16,7 +16,7 @@
         .stat-card {
             flex: 1; /* Ocupa espaço igual */
             min-width: 350px; /* Largura mínima para não quebrar layout */
-            background-color: #ffffff;
+            background-color: var(--container-bg);
             border-radius: 16px;
             padding: 10px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
@@ -24,11 +24,11 @@
             display: flex;
             align-items: center; /* Alinha ícone e texto verticalmente */
             transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #f0f0f0;
+            border: 1px solid var(--container-border);
 
             &:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
             }
 
             /* --- Ícones --- */
@@ -66,7 +66,7 @@
 
                 .card-label {
                     font-size: 14px;
-                    color: #6b7280;
+                    color: var(--text-color);
                     font-weight: 500;
                     margin-bottom: 4px;
                     text-transform: uppercase;
@@ -76,7 +76,7 @@
                 .card-value {
                     font-size: 20px;
                     font-weight: 800;
-                    color: #1f2937;
+                    color: var(--text-color);
                     line-height: 1.1;
                 }
 
@@ -84,7 +84,7 @@
                 .card-note {
                     font-size: 11px;
                     margin-top: 4px;
-                    color: var(--color-primary-1   ); /* Verde para crescimento */
+                    color: var(--text-color); /* Verde para crescimento */
                     font-weight: 600;
                 }
             }

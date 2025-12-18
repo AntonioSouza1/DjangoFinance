@@ -1,4 +1,4 @@
-{%extends 'main/base.html' %}
+{%extends 'base.html' %}
 {% load static %}
 {% load l10n %}
 
@@ -10,7 +10,38 @@
 <section class="filter" id="filter_content">
     <h3>Filtros</h3>
     <form method="GET">
-        {% include "registrations/subscription/filter.html" %}
+        <div class="grid">
+            <div class="filter-item">
+                <label for="f_id">ID</label>
+                <input type="number" name="f_id" value="{{ f_id }}" id="f_id" min="1" placeholder="ID">
+            </div>
+
+            <div class="filter-item">
+                <label for="f_description">Descrição</label>
+                <input type="text" name="f_description" value="{% if f_description %}{{ f_description }}{% endif %}" id="f_description" placeholder="Descrição">
+            </div>
+
+            {% if categories %}
+                <div class="filter-item">
+                    <label for="f_category">Categoria</label>
+                    <select name="f_category" id="f_category">
+                        <option value="" selected>Selecione</option>
+                        {% for category in categories %}
+                            <option value="{{ category.pk }}" {% if f_category == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.pk }} - {{ category.category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            <div class="filter-item">
+                <label for="f_status">Situação</label>
+                <select name="f_status" id="f_status">
+                    <option value="" selected>Selecione</option>
+                    <option value="A" {% if f_status == 'A' %}selected{% endif %}>Ativo</option>
+                    <option value="C" {% if f_status == 'C' %}selected{% endif %}>Cancelado</option>
+                </select>
+            </div>
+        </div>
 
         <div class="filter-button">
             <a href="{% url 'subscription:list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
@@ -22,7 +53,6 @@
 <div class="root">
 
     <section class="card-buttons">
-        <a href="{% url 'subscription:category_list' %}"><button type="button" class="custom-button blue">Categorias</button></a>
         <a href="{% url 'subscription:create' %}"><button type="button" class="custom-button new">Nova Assinatura</button></a>
     </section>
 
@@ -36,44 +66,43 @@
                 <col style="width: 20%;">
                 <col style="width: 20%;">
                 <col style="width: 10%;">
-                <col style="width: 15%;">
                 <col style="width: 10%;">
                 <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 5%;">
             </colgroup>
 
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Serviço</th>
+                    <th scope="col">Descrição</th>
                     <th scope="col">Fornecedor</th>
                     <th scope="col">Valor</th>
                     <th scope="col">Dia Renov.</th>
                     <th scope="col">Categoria</th>
                     <th scope="col">Freq.</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Ações</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for subscription in subscriptions %}
-                    <tr onclick="window.location='{% url 'subscription:update' subscription.pk %}';" style='cursor: pointer;'>
+                    <tr>
                         <td>{{ subscription.pk }}</td>
-                        <td>{{ subscription.service }}</td>
+                        <td>{{ subscription.description }}</td>
                         <td>{{ subscription.supplier }}</td>
                         <td>R$ {{ subscription.value|localize }}</td>
                         <td>{{ subscription.renewal_day }}</td>
                         <td>{{ subscription.category }}</td>
                         <td>
-                            {% if subscription.payment_frequency == 'M' %}Mensal{% elif subscription.payment_frequency == 'T' %}Trimestral{% elif subscription.payment_frequency == 'A' %}Anual{% else %}Indefinido{% endif %}
+                            {{ subscription.get_payment_frequency_display }}
                         </td>
                         <td>
-                            {% if subscription.status == 'A' %}
-                                <div class="badge badge--success">Ativo</div>
-                            {% elif subscription.status == 'C' %}
-                                <div class="badge badge--danger">Cancelado</div>
-                            {% else %}
-                                <div class="badge">Indefinido</div>
-                            {% endif %}
+                            {{ subscription.get_status_display }}
+                        </td>
+                        <td>
+                            <a href="{% url 'subscription:update' transaction.pk %}"><button type="button" class="custom-button outline success table-btn">Editar</button></a>
                         </td>
                     </tr>
                 {% empty %}
@@ -87,13 +116,13 @@
         {% if is_paginated %}
             <div class="pagination">
                 {% if page_obj.has_previous %}
-                    <a href="?page=1"><button class="custom-button outline"><i class="fa-solid fa-angles-left"></i></button></a>
-                    <a href="?page={{ page_obj.previous_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-left"></i></button></i></a>
+                    <a href="?page=1"><i class="fa-solid fa-angles-left"></i></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><i class="fa-solid fa-chevron-left"></i></a>
                 {% endif %}
                     <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}"><button class="custom-button outline"><i class="fa-solid fa-chevron-right"></i></button></a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}"><button class="custom-button outline"><i class="fa-solid fa-angles-right"></i></button></a>
+                    <a href="?page={{ page_obj.next_page_number }}"><i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><i class="fa-solid fa-angles-right"></i></a>
                 {% endif %}
             </div>
         {% endif %}

@@ -1,4 +1,4 @@
-{%extends 'main/base.html' %}
+{%extends 'main/../../../../../templates/base.html' %}
 {% load static %}
 
 {% block head %}
@@ -37,8 +37,8 @@
             </div>
 
             <div class="form-item span-2">
-                <label for="{{ form.service.id_for_label }}">Serviço</label>
-                {{ form.service }}
+                <label for="{{ form.description.id_for_label }}">Descrição</label>
+                {{ form.description }}
             </div>
 
             <div class="form-item">
@@ -72,8 +72,8 @@
             </div>
 
             <div class="form-item span-5">
-                <label for="{{ form.description.id_for_label }}">Descrição</label>
-                {{ form.description }}
+                <label for="{{ form.observation.id_for_label }}">Observação</label>
+                {{ form.observation }}
             </div>
 
             <div class="form-item">

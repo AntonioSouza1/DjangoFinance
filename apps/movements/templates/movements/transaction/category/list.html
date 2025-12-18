@@ -1,0 +1,122 @@
+{%extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'base/css/dialog.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="title-div">
+    <h1>Categoria de Transações</h1>
+</section>
+
+<section class="filter" id="filter_content">
+    <form method="GET">
+        <h3>Filtros</h3>
+        <div class="grid">
+            <div class="filter-item">
+                <label for="f_name">Nome</label>
+                <input type="text" name="f_name" value="{% if f_name %}{{ f_name }}{% endif %}" id="f_name" placeholder="Nome">
+            </div>
+        </div>
+
+        <div class="filter-button">
+            <a href="{% url 'transaction:category_list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+            <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+        </div>
+    </form>
+</section>
+
+<div class="root">
+
+    <section class="card-buttons">
+        <div>
+            <div class="badge badge--success">Total: {{ total }}</div>
+        </div>
+        <a href="{% url 'transaction:category_create' %}"><button type="button" class="custom-button new">Novo</button></a>
+    </section>
+
+    <section class="tabela-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 90%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>
+                            <a href="{% url 'transaction:category_update' category.pk %}"><button type="button" class="custom-button outline success table-btn">Editar</button></a>
+                            <button type="submit" id="open_delete{{ category.pk }}" class="custom-button outline danger table-btn">Excluir</button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">Não há registros para serem exibidos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><i class="fa-solid fa-angles-left"></i></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><i class="fa-solid fa-chevron-left"></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><i class="fa-solid fa-angles-right"></i></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+    {% for category in categories %}
+
+    <!-- Dialogo para excluir da transação -->
+        <dialog id="delete{{ category.pk }}">
+            <form action="{% url 'transaction:category_delete' category.pk %}" method="post">
+                {% csrf_token %}
+                <h3>Tem certeza que deseja excluir?</h3>
+                <div class="botoes-modal">
+                    <button type="button" class="custom-button default" id="btnCancelarDelete{{ category.pk }}">Cancelar</button>
+                    <button type="submit" class="custom-button danger">Confirmar</button>
+                </div>
+            </form>
+        </dialog>
+    {% endfor %}
+</div>
+<script>
+{% for category in categories %}
+    (function() {
+
+        const pk = "{{ category.pk }}";
+
+        const modalDelete = document.getElementById('delete' + pk);
+        const btnOpenDelete = document.getElementById('open_delete' + pk);
+        const btnCloseDelete = document.getElementById('btnCancelarDelete' + pk);
+
+        if (btnOpenDelete && modalDelete) {
+            btnOpenDelete.addEventListener('click', () => modalDelete.showModal());
+        }
+
+        if (btnCloseDelete && modalDelete) {
+            btnCloseDelete.addEventListener('click', () => modalDelete.close());
+        }
+    })();
+{% endfor %}
+</script>
+{% endblock %}
+

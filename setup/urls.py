@@ -4,7 +4,7 @@ from django.urls import path, include
 
 
 def custom_404(request, exception):
-    return render(request, 'main/404.html', status=404)
+    return render(request, 'main/../templates/404.html', status=404)
 
 # Defina o manipulador 404 para a função acima
 handler404 = custom_404

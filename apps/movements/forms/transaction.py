@@ -1,15 +1,93 @@
 from logging import disable
 
 from django import forms
-from apps.movements.models.transaction import Transaction
+from apps.movements.models.transaction import Transaction, TransactionGroup, TransactionPaymentMethod, TransactionCategory
+
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
 
+
+#Formularios de Transações
+
+#Categorias de Transações
+class TransactionCategoryForm(forms.ModelForm):
+    class Meta:
+        model = TransactionCategory
+        fields = '__all__'
+        exclude = ('user',)
+
+        #customizações dos input
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Nome'}),
+        }
+
+# Grupos de Transações
+class TransactionGroupForm(forms.ModelForm):
+    class Meta:
+        model = TransactionGroup
+        fields = '__all__'
+        exclude = ('user',)
+
+        # customizações dos input
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Nome'}),
+        }
+
+# Formas de pagamentos das Transações
+class TransactionPaymentMethodForm(forms.ModelForm):
+    class Meta:
+        model = TransactionPaymentMethod
+        fields = '__all__'
+        exclude = ('user',)
+
+        # customizações dos input
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Nome'}),
+        }
+
+#Transações
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = "__all__"
-        exclude = ['user']
+        fields = '__all__'
+        exclude = ('user',)
+
+    widgets = {
+        'category': forms.Select(attrs={
+            # Aqui você injeta a classe CSS
+            'class': 'select-limitado',
+
+            # E define o atributo 'size' para forçar a barra de rolagem
+            'size': '8'  # Isso fará com que 8 opções sejam visíveis
+        }),
+
+        'group': forms.Select(attrs={
+            # Aqui você injeta a classe CSS
+            'class': 'select-limitado',
+
+            # E define o atributo 'size' para forçar a barra de rolagem
+            'size': '8'  # Isso fará com que 8 opções sejam visíveis
+        }),
+
+        'payment_method': forms.Select(attrs={
+            # Aqui você injeta a classe CSS
+            'class': 'select-limitado',
+
+            # E define o atributo 'size' para forçar a barra de rolagem
+            'size': '8'  # Isso fará com que 8 opções sejam visíveis
+        }),
+    }
+
+    def __init__(self, *args, user=None, **kwargs):
+        # 1. Chama o construtor original do ModelForm
+        super().__init__(*args, **kwargs)
+
+        # 2. Guarda o usuário (opcional, mas bom para validações futuras)
+        self.user = user
+
+        self.fields['category'].queryset = TransactionCategory.objects.filter(user=user)
+        self.fields['group'].queryset = TransactionGroup.objects.filter(user=user)
+        self.fields['payment_method'].queryset = TransactionPaymentMethod.objects.filter(user=user)
 
     description = forms.CharField(
         min_length=3,
@@ -113,6 +191,16 @@ class TransactionForm(forms.ModelForm):
         )
     )
 
+    issue_date = forms.DateField(
+        input_formats=DATE_INPUT_FORMATS,  # Adicionado para garantir que o Django aceite a entrada neste formato
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+            },
+            format='%Y-%m-%d'  # <-- ESSENCIAL: Diz ao widget como formatar o valor inicial
+        )
+    )
+
     payment_date = forms.DateField(
         required=False,
         input_formats=DATE_INPUT_FORMATS,  # Adicionado para garantir que o Django aceite a entrada neste formato
@@ -123,4 +211,3 @@ class TransactionForm(forms.ModelForm):
             format='%Y-%m-%d'  # <-- ESSENCIAL: Diz ao widget como formatar o valor inicial
         )
     )
-

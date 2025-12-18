@@ -1,28 +1,35 @@
-{%extends 'main/base.html' %}
+{%extends 'base.html' %}
 {% load static %}
 
 {% block head %}
-    <style>
-        .root {
-            width: 60%;
-        }
-    </style>
-{% endblock head %}
+    <link rel="stylesheet" href="{% static 'base/css/dialog.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="root">
-    <div class="title-div">
-        <h2>Transação</h2>
-    </div>
+<section class="title-div">
+    <h1>Transações</h1>
 
-    <div class="form-button">
-        <button type="submit" class="custom-button default" form="form">Salvar</button>
-        {% if object.pk %}
-            <form action="{% url 'transaction:delete' object.pk %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir?');">
-                {% csrf_token %}
-                <button type="submit" class="custom-button danger">Excluir</button>
-            </form>
+    <div>
+        {% if transaction.type == 'E' %}
+            <div class="badge badge--success">Entrada</div>
+        {% elif transaction.type == 'S' %}
+            <div class="badge badge--danger">Saida</div>
+        {% else %}
+            <div class="badge">Indefinido</div>
         {% endif %}
+    </div>
+</section>
+
+<div class="root">
+    <div class="form-button">
+    {% if object.status != 'Q' %}
+        <button type="submit" class="custom-button default" form="form">Salvar</button>
+
+        {% if object.pk %}
+            <button type="button" id="open_pay_off" class="custom-button outline warning">Baixar</button>
+            <button type="submit" id="open_delete" class="custom-button danger">Excluir</button>
+        {% endif %}
+    {% endif %}
         <a href="{% url 'transaction:list' %}"><button type="button" class="custom-button outline">Sair</button></a>
     </div>
 
@@ -30,16 +37,16 @@
     <form method="POST" id="form" enctype="multipart/form-data">
         {% csrf_token %}
         <h3>Identificação e Vínculo</h3>
-        <div class="form-group grid-6">
+        <div class="form-group grid">
 
-            <div class="form-item span-3">
+            <div class="form-item">
                 <label for="{{ form.description.id_for_label }}">Descrição</label>
                 {{ form.description }}
             </div>
 
         </div>
         <h3>Valores</h3>
-        <div class="form-group grid-6">
+        <div class="form-group grid">
 
             <div class="form-item">
                 <label for="{{ form.base_value.id_for_label }}">Valor base</label>
@@ -64,29 +71,46 @@
         </div>
 
         <h3>Datas e Prazos</h3>
-        <div class="form-group grid-6">
+        <div class="form-group grid">
+            <div class="form-item">
+                <label for="{{ form.issue_date.id_for_label }}">Data de Emissão</label>
+                {{ form.issue_date }}
+            </div>
+
             <div class="form-item">
                 <label for="{{ form.due_date.id_for_label }}">Data de Vencimento</label>
                 {{ form.due_date }}
             </div>
 
             <div class="form-item">
-                <label for="{{ form.payment_date.id_for_label }}">Data de Pagameto</label>
+                <label for="{{ form.payment_date.id_for_label }}">Data de Pagamento</label>
                 {{ form.payment_date }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.payment_method.id_for_label }}">Metodo de Pagamento</label>
+                {{ form.payment_method }}
             </div>
         </div>
 
         <h3>Classificação e Status</h3>
-        <div class="form-group grid-6">
+        <div class="form-group grid">
+            <div class="form-item">
+                <label for="{{ form.category.id_for_label }}">Categoria</label>
+                {{ form.category }}
+            </div>
+
+            <div class="form-item">
+                <label for="{{ form.group.id_for_label }}">Grupo</label>
+                {{ form.group }}
+            </div>
+        </div>
+
+        <div class="form-group grid">
 
             <div class="form-item">
                 <label for="{{ form.type.id_for_label }}">Tipo</label>
                 {{ form.type }}
-            </div>
-
-            <div class="form-item">
-                <label for="{{ form.status.id_for_label }}">Status</label>
-                {{ form.status }}
             </div>
 
             <div class="form-item">
@@ -95,20 +119,67 @@
             </div>
 
             <div class="form-item">
-                <label for="create_at">Data de Assinatura</label>
-                <input type="text" name="id_create_at" id="id_create_at" value="{{ object.created_at|date:"d/m/Y" }}" disabled>
+                <label for="{{ form.status.id_for_label }}">Status</label>
+                {{ form.status }}
             </div>
 
-            <div class="form-item">
-                <label for="update_at">Ultima Atualização</label>
-                <input type="text" name="update_at" id="update_at" value="{{ object.updated_at|date:"d/m/Y" }}" disabled>
-            </div>
+            {% if object.pk %}
+                <div class="form-item">
+                    <label for="create_at">Data de Cadastro</label>
+                    <input type="text" name="id_create_at" id="id_create_at" value="{{ object.created_at|date:"d/m/Y" }}" disabled>
+                </div>
+
+                <div class="form-item">
+                    <label for="update_at">Ultima Atualização</label>
+                    <input type="text" name="update_at" id="update_at" value="{{ object.updated_at|date:"d/m/Y" }}" disabled>
+                </div>
+            {% endif %}
 
         </div>
+
     </form>
     </section>
-</div>
 
+    <!-- Dialogo para efetuar a baixa da transação -->
+    {% if object.pk %}
+        <dialog id="pay_off">
+
+            <form id="formDownload" action="{% url 'transaction:settle-transaction' transaction.pk %}" method="POST">
+                {% csrf_token %}
+                <h3>Selecione a data de pagamento</h3>
+
+                <div class="form-grupo">
+                    <div class="filter-item">
+                        <label for="{{ form.payment_method.id_for_label }}">metodo de Pagamento</label>
+                        {{ form.payment_method }}
+                    </div>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="date">Data</label>
+                    <input type="date" id="date" name="date">
+                </div>
+
+                <div class="botoes-modal">
+                    <button type="button" class="custom-button default" id="btnCancelarBaixa">Cancelar</button>
+                    <button type="submit" class="custom-button secondary">Confirmar</button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog id="delete">
+            <form action="{% url 'transaction:delete' transaction.pk %}" method="post">
+                {% csrf_token %}
+                <h3>Tem certeza que deseja excluir?</h3>
+                <div class="botoes-modal">
+                    <button type="button" class="custom-button default" id="btnCancelarDelete">Cancelar</button>
+                    <button type="submit" class="custom-button secondary">Confirmar</button>
+                </div>
+            </form>
+        </dialog>
+
+    {% endif %}
+</div>
 <script>
     function calcularValorDevido() {
         // 1. Pega os valores e converte para número (float)
@@ -133,6 +204,45 @@
 
     // Opcional: Chama a função uma vez ao carregar a página
     calcularValorDevido();
+
+    const hoje = new Date();
+    const dataFormatada = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+        (function() {
+
+            // Seleciona Elementos
+            const modalPay = document.getElementById('pay_off');
+            const modalDelete = document.getElementById('delete');
+
+            const btnOpenPay = document.getElementById('open_pay_off');
+            const btnOpenDelete = document.getElementById('open_delete');
+
+            const btnClosePay = document.getElementById('btnCancelarBaixa');
+            const btnCloseDelete = document.getElementById('btnCancelarDelete');
+
+            // Input de data específico desta transação
+            const inputDate = document.getElementById('date');
+
+            // Lógica Modal Baixa
+            if (btnOpenPay && modalPay) {
+                btnOpenPay.addEventListener('click', () => {
+                    if(inputDate) inputDate.max = dataFormatada; // Define max data ao abrir
+                    modalPay.showModal();
+                });
+            }
+
+            if (btnClosePay && modalPay) {
+                btnClosePay.addEventListener('click', () => modalPay.close());
+            }
+
+            if (btnOpenDelete && modalDelete) {
+                btnOpenDelete.addEventListener('click', () => modalDelete.showModal());
+            }
+
+            if (btnCloseDelete && modalDelete) {
+                btnCloseDelete.addEventListener('click', () => modalDelete.close());
+            }
+        })();
 
 </script>
 

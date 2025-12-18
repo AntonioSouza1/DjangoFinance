@@ -1,10 +1,12 @@
 from auditlog.registry import auditlog
+from django.contrib.auth.models import User
 from django.db import models
 
 from apps.registrations.models.supplier import Supplier
 
 
 class Category(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.CharField("Categoria", max_length=100)
 
     def __str__(self):
@@ -41,9 +43,10 @@ class Subscription(models.Model):
         ('C', 'Cancelado'),
     ]
 
-    service = models.CharField(max_length=100, verbose_name="Serviço")
+    user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.CASCADE)
+    description = models.CharField(max_length=100, verbose_name="Descrição")
     supplier = models.CharField(max_length=100, null=True, blank=True, verbose_name='Fornecedor')
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name="Categoria")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, verbose_name="Categoria", null=True)
     subscription_type = models.CharField(max_length=20, choices=SUBSCRIPTION_TYPES, verbose_name="Tipo de Assinatura")
     value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor")
     payment_method = models.CharField(max_length=20, choices=PAYMENT_TYPES, verbose_name="Metodo de Pagamento")
@@ -52,7 +55,7 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="data de criacao")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="data de atualizacao")
     canceled_at = models.DateField(null=True, blank=True, verbose_name="data de cancelamento")
-    description = models.TextField(null=True, blank=True, verbose_name='Descrição')
+    observation = models.TextField(null=True, blank=True, verbose_name='Descrição')
     status = models.CharField(max_length=1, choices=STATUS, default='A')
 
     class Meta:
@@ -61,7 +64,7 @@ class Subscription(models.Model):
         ordering = ['-updated_at']
 
     def __str__(self):
-        return self.service
+        return self.description
 
-auditlog.register(Subscription)
-auditlog.register(Category)
+#auditlog.register(Subscription)
+#auditlog.register(Category)
