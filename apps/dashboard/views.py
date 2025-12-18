@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import  View
 from django.utils import timezone
 
-from apps.movements.models.transaction import Transaction
+from apps.transaction.models import Transaction
 from apps.registrations.models.subscription import Subscription
 from apps.utils.mixins import *
 

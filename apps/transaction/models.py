@@ -73,7 +73,7 @@ class Transaction(models.Model):
     due_date = models.DateField(verbose_name="Data de Vencimento")
     payment_date = models.DateField(verbose_name="Data de Pagamento", null=True, blank=True)
 
-    subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, verbose_name="Assinatura", limit_choices_to={'status': 'A'}, related_name='transaction', null=True, blank=True)
+    subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, verbose_name="Assinatura", limit_choices_to={'status': 'A'}, related_name='templates', null=True, blank=True)
 
     category = models.ForeignKey(TransactionCategory, on_delete=models.SET_NULL, verbose_name="Categoria", blank=True, null=True)
     group = models.ForeignKey(TransactionGroup, on_delete=models.SET_NULL, verbose_name="Grupo", blank=True, null=True)
@@ -90,5 +90,3 @@ class Transaction(models.Model):
 
     def __str__(self):
         return self.description
-
-auditlog.register(Transaction)

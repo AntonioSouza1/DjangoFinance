@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.movements.models.transaction import Transaction, TransactionCategory, TransactionGroup, TransactionPaymentMethod
+from apps.transaction.models import Transaction, TransactionCategory, TransactionGroup, TransactionPaymentMethod
 
 class TransactionPaymentMethodAdmin(admin.ModelAdmin):
     list_display = ['user', 'name',]

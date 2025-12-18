@@ -28,6 +28,7 @@ header{
             top: 50px;
             left: 0;
             padding: 1rem;
+            background-color: var(--django-green);
 
             &.show_mobile{
                 display: flex;

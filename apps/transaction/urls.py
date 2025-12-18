@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.movements.views.transaction import *
+from apps.transaction.views import *
 
 app_name = "transaction"
 

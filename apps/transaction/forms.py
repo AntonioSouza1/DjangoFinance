@@ -1,7 +1,7 @@
 from logging import disable
 
 from django import forms
-from apps.movements.models.transaction import Transaction, TransactionGroup, TransactionPaymentMethod, TransactionCategory
+from apps.transaction.models import Transaction, TransactionGroup, TransactionPaymentMethod, TransactionCategory
 
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d']

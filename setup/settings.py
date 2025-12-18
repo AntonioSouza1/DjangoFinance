@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'apps.login.apps.LoginConfig',
     'apps.dashboard.apps.DashboardConfig',
     'apps.registrations.apps.RegistrationsConfig',
-    'apps.movements.apps.MovementsConfig',
+    'apps.transaction.apps.TransactionConfig',
 ]
 
 MIDDLEWARE = [
