@@ -1,0 +1,10 @@
+<dialog id="delete{{ category.pk }}">
+    <form action="{% url 'subscription:category_delete' category.pk %}" method="post">
+        {% csrf_token %}
+        <h3>Tem certeza que deseja excluir?</h3>
+        <div class="botoes-modal">
+            <button type="button" class="custom-button default" id="btnCancelarDelete{{ category.pk }}">Cancelar</button>
+            <button type="submit" class="custom-button secondary">Confirmar</button>
+        </div>
+    </form>
+</dialog>

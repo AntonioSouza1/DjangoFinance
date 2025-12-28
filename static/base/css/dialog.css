@@ -12,15 +12,15 @@ dialog {
     /* Tamanho e Layout */
             /* Ocupa 90% em celulares */
       /* Trava em 400px em telas grandes */
-    padding: 2rem;      /* Espaçamento interno generoso */
+    padding: 1rem;      /* Espaçamento interno generoso */
 
     /* Visual Moderno */
     border: none;
-    border-radius: 16px; /* Cantos bem arredondados */
+    border-radius: 12px; /* Cantos bem arredondados */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra suave para dar profundidade */
     background-color: var(--container-bg);
     color: var(--text-color);
-
+    width: clamp(70%, 40%, 90%);
     /* Animação de Entrada */
     animation: surgimentoSuave 0.3s ease-out;
 }

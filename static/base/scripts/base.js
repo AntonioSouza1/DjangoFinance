@@ -120,3 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Adiciona o evento de clique ao botão
     toggleButton.addEventListener('click', toggleTheme);
 });
+
+document.body.addEventListener('htmx:beforeRequest', (e) => {
+    // Busca o botão dentro do formulário que disparou o evento e o desabilita
+    const button = e.detail.elt.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+});
+
+document.body.addEventListener('htmx:afterRequest', (e) => {
+    // Reabilita após a resposta (seja sucesso ou erro)
+    const button = e.detail.elt.querySelector('button[type="submit"]');
+    if (button) button.disabled = false;
+});
+

@@ -1,0 +1,103 @@
+{%extends 'index.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'base/css/dialog.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="title-div">
+    <h1>Categoria de Assinaturas</h1>
+</section>
+
+<dialog id="dialog_form">
+    <div id="form_category" hx-swap-oob="true">
+
+    </div>
+</dialog>
+
+<section class="filter" id="filter_content">
+    <form method="GET">
+        <h3>Filtros</h3>
+        <div class="grid">
+            <div class="filter-item">
+                <label for="f_name">Nome</label>
+                <input type="text" name="f_name" value="{% if f_name %}{{ f_name }}{% endif %}" id="f_name" placeholder="Nome">
+            </div>
+        </div>
+
+        <div class="filter-button">
+            <a href="{% url 'subscription:category_list' %}"><button type="button" class="custom-button secondary" title="Limpar filtro">Limpar</button></a>
+            <button type="submit" class="custom-button default" title="Filtrar">Filtrar</button>
+        </div>
+    </form>
+</section>
+
+<div class="root">
+
+    <section class="card-buttons">
+        <div>
+            <div class="badge badge--success">Total: {{ total }}</div>
+        </div>
+        <button hx-get="{% url 'subscription:category_create' %}" hx-target="#form_category" class="custom-button new">Novo</button>
+    </section>
+
+    <section class="table-container">
+        <table class="table">
+            <caption>
+            </caption>
+
+            <colgroup>
+                <col style="width: 90%;">
+                <col style="width: 10%;">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="category_table">
+                {% include 'subscription/category/partials/table.html' %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"><i class="fa-solid fa-angles-left"></i></a>
+                    <a href="?page={{ page_obj.previous_page_number }}"><i class="fa-solid fa-chevron-left"></i></a>
+                {% endif %}
+                    <p>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}"><i class="fa-solid fa-angles-right"></i></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+<script>
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+        if (e.detail.target.id === "form_category") {
+            document.getElementById('dialog_form').showModal();
+        }
+    });
+
+    document.body.addEventListener('htmx:beforeSwap', (e) => {
+        // Se a resposta for vazia (após o delete ou save sucesso), fecha o modal
+        if (e.detail.target.id === "form_category" && !e.detail.xhr.response) {
+            document.getElementById('dialog_form').close();
+            document.getElementById('form_category').innerHTML = "";
+        }
+    });
+
+    document.body.addEventListener('closeModal', () => {
+        document.getElementById('dialog_form').close();
+        document.getElementById('form_category').innerHTML = "";
+
+    });
+</script>
+{% endblock %}
+

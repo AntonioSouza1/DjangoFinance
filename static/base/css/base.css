@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('nav.css');
 @import url(variables.css);
-@import url(header.css);
 @import url(titles.css);
 @import url(tables.css);
 @import url(filters.css);
@@ -11,28 +11,21 @@
 @import url(tab.css);
 
 *{
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    text-decoration: none;
-    font-family: 'poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     list-style: none;
-}
-
-.btn{
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: .9rem;
-    font-weight: 600;
-    background-color: transparent;
+    text-decoration: none;
 }
 
 body{
+    position: relative;
+    min-height: 100vh;
     background-color: var(--body-bg);
-    display: flex;
-    flex-direction: column;
+    color: var(--text);
+    display: grid;
+    grid-template-columns: auto 1fr;
 
     main{
         display: flex;
@@ -55,6 +48,20 @@ body{
         border-radius: 10px;
         border: 1px solid var(--container-border);
     }
+}
+
+#theme-toggle{
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    svg{
+        fill: var(--theme);
+    }
+
 }
 
 p{
@@ -86,3 +93,4 @@ select {
   max-height: 200px;
   overflow-y: auto;
 }
+

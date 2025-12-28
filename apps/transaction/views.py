@@ -22,7 +22,7 @@ from datetime import date
 # Lista de Categorias
 class TransactionCategoryListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
     model = TransactionCategory
-    template_name = 'category/list.html'
+    template_name = 'transaction/category/list.html'
     paginate_by = 10
     context_object_name = 'categories'
     login_url = reverse_lazy('login:login')
@@ -52,7 +52,7 @@ class TransactionCategoryListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessE
 class TransactionCategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = TransactionCategory
     form_class = TransactionCategoryForm
-    template_name = 'category/form.html'
+    template_name = 'transaction/category/form.html'
     success_url = reverse_lazy("transaction:category_list")
     login_url = reverse_lazy('login:login')
 
@@ -65,7 +65,7 @@ class TransactionCategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, Succes
 class TransactionCategoryUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = TransactionCategory
     form_class = TransactionCategoryForm
-    template_name = 'category/form.html'
+    template_name = 'transaction/category/form.html'
     success_url = reverse_lazy('transaction:category_list')
     context_object_name = 'category'
     login_url = reverse_lazy('login:login')
@@ -94,7 +94,7 @@ class TransactionCategoryDeleteView(LoginRequiredMixin, UserIsOwnerMixin, Succes
 # Lista de Grupos
 class TransactionGroupListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
     model = TransactionGroup
-    template_name = 'group/list.html'
+    template_name = 'transaction/group/list.html'
     paginate_by = 10
     context_object_name = 'groups'
     login_url = reverse_lazy('login:login')
@@ -125,7 +125,7 @@ class TransactionGroupListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErro
 class TransactionGroupCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = TransactionGroup
     form_class = TransactionGroupForm
-    template_name = 'group/form.html'
+    template_name = 'transaction/group/form.html'
     success_url = reverse_lazy("transaction:group_list")
     login_url = reverse_lazy('login:login')
 
@@ -139,7 +139,7 @@ class TransactionGroupCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessEr
 class TransactionGroupUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = TransactionGroup
     form_class = TransactionGroupForm
-    template_name = 'group/form.html'
+    template_name = 'transaction/group/form.html'
     success_url = reverse_lazy('transaction:group_list')
     context_object_name = 'group'
     login_url = reverse_lazy('login:login')
@@ -169,7 +169,7 @@ class TransactionGroupDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessEr
 # Lista de Formas de Pagamento
 class TransactionPaymentMethodListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
     model = TransactionPaymentMethod
-    template_name = 'payment/list.html'
+    template_name = 'transaction/payment/list.html'
     paginate_by = 10
     context_object_name = 'payments'
     login_url = reverse_lazy('login:login')
@@ -220,7 +220,7 @@ class TransactionPaymentMethodListView(LoginRequiredMixin, UserIsOwnerMixin, Suc
 class TransactionPaymentMethodCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = TransactionPaymentMethod
     form_class = TransactionGroupForm
-    template_name = 'payment/form.html'
+    template_name = 'transaction/payment/form.html'
     success_url = reverse_lazy("transaction:payment_method_list")
     login_url = reverse_lazy('login:login')
 
@@ -234,7 +234,7 @@ class TransactionPaymentMethodCreateView(LoginRequiredMixin, UserIsOwnerMixin, S
 class TransactionPaymentMethodUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = TransactionPaymentMethod
     form_class = TransactionGroupForm
-    template_name = 'payment/form.html'
+    template_name = 'transaction/payment/form.html'
     success_url = reverse_lazy('transaction:payment_method_list')
     context_object_name = 'payment_method'
     login_url = reverse_lazy('login:login')
@@ -370,7 +370,7 @@ class TransactionListMixin(ContextMixin):
 
 class TransactionListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
     model = Transaction
-    template_name = "list.html"
+    template_name = "transaction/list.html"
     context_object_name = "transactions"
     login_url = reverse_lazy('login:login')
     paginate_by = 10
@@ -387,7 +387,7 @@ class TransactionListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMess
 class TransactionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Transaction
     form_class = TransactionForm
-    template_name = "form.html"
+    template_name = "transaction/form.html"
     success_url = reverse_lazy("transaction:list")
     login_url = reverse_lazy('login:login')
 
@@ -423,7 +423,7 @@ class TransactionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMe
 class TransactionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Transaction
     form_class = TransactionForm
-    template_name = "form.html"
+    template_name = "transaction/form.html"
     success_url = reverse_lazy("transaction:list")
 
     def get_form_kwargs(self):
@@ -441,7 +441,7 @@ class TransactionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMe
 class TransactionDetailView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DetailView):
     model = Transaction
     form_class = TransactionForm
-    template_name = "detail.html"
+    template_name = "transaction/detail.html"
 
 
 class TransactionDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, DeleteView):
@@ -462,7 +462,7 @@ class TransactionDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMe
 
 class TransactionReportView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, TransactionListMixin, ListView):
     model = Transaction
-    template_name = "report.html"
+    template_name = "transaction/report.html"
     context_object_name = "transactions"
     login_url = reverse_lazy('login:login')
 

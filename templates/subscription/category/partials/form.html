@@ -1,0 +1,25 @@
+<section class="forms" >
+
+    <div class="title-div">
+        {% if category %}
+            <h2>Editar Categoria</h2>
+        {% else %}
+            <h2>Cadastrar Categoria</h2>
+        {% endif %}
+    </div>
+
+    <form method='POST' hx-post="{% if category %}{% url 'subscription:category_update' category.pk %}{% else %}{% url 'subscription:category_create' %}{% endif %}" hx-swap="innerHTML" hx-target="#category_table" enctype="multipart/form-data">
+        {%csrf_token%}
+        <div class="form-group">
+            <div class="form-item">
+                <label for="{{ form.name.id_for_label }}">Nome</label>
+                {{ form.name }}
+            </div>
+        </div>
+
+        <div class="form-button">
+            <button type="submit" class="custom-button default" title="Salvar">Salvar</button>
+            <button type="button" class="custom-button outline" onclick="document.getElementById('dialog_form').close()">Cancelar</button>
+        </div>
+    </form>
+</section>

@@ -1,5 +1,5 @@
 from django import forms
-from apps.registrations.models.subscription import Subscription, Category
+from apps.subscription.models import Subscription, Category
 
 class SubscriptionForm(forms.ModelForm):
 
@@ -8,14 +8,16 @@ class SubscriptionForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('user',)
 
-    def __init__(self, user, *args, **kwargs):
-        # Recebemos o 'user' como argumento extra antes de iniciar o form
+    def __init__(self, *args, **kwargs):
+        # 1. Extraímos o 'user' dos kwargs de forma segura
+        user = kwargs.pop('user', None)
+
+        # 2. Chamamos o super() apenas com os argumentos padrão do Django
         super(SubscriptionForm, self).__init__(*args, **kwargs)
 
-        # AQUI É O FILTRO:
-        # Estamos dizendo: "Neste campo 'category', carregue apenas
-        # as categorias onde o campo 'user' for igual ao usuário logado"
-        self.fields['category'].queryset = Category.objects.filter(user=user)
+        # 3. Aplicamos o filtro se o user existir
+        if user:
+            self.fields['category'].queryset = Category.objects.filter(user=user)
 
     description = forms.CharField(
         min_length=3,
@@ -79,7 +81,7 @@ class SubscriptionForm(forms.ModelForm):
     observation = forms.CharField(
         required=False,
         widget=forms.Textarea(
-            attrs={'placeholder':'Descrição',
+            attrs={'placeholder':'Observação',
                     'rows': 4,
                     'cols': 40,}
         )
@@ -109,7 +111,7 @@ class CategoryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('user',)
 
-    category = forms.CharField(
+    name = forms.CharField(
         widget=forms.TextInput(
             attrs={'placeholder':'Categoria'}
         )

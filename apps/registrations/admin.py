@@ -4,15 +4,7 @@ from apps.registrations.models.supplier import *
 from apps.registrations.models.card import *
 from apps.registrations.models.bank_account import *
 
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['user','description','category', 'value', 'status']
-    list_filter = ['user', 'status']
 
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['category',]
-
-admin.site.register(Subscription, SubscriptionAdmin)
-admin.site.register(Category, CategoryAdmin)
 
 class SupplierAdmin(admin.ModelAdmin):
     list_display = ['corporate_name']

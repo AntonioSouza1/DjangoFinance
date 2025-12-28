@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'apps.logs.apps.LogsConfig',
     'apps.login.apps.LoginConfig',
     'apps.dashboard.apps.DashboardConfig',
-    'apps.registrations.apps.RegistrationsConfig',
     'apps.transaction.apps.TransactionConfig',
+    'apps.subscription.apps.SubscriptionConfig',
 ]
 
 MIDDLEWARE = [

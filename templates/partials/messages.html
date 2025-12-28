@@ -1,0 +1,8 @@
+<div id="messages-container">
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            <span class="text">{{ message }}</span>
+            <span class="close-btn" onclick="this.parentElement.remove()">×</span>
+        </div>
+    {% endfor %}
+</div>

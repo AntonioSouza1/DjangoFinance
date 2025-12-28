@@ -43,19 +43,20 @@
     --neutral-background: #6366f10f;
     --neutral-border: #6366f12e;
 
+    --django-green: #0C4B33;
+    --color-nav-bg: var(--django-green);
+    --color-nav-text: #FFFFFF;
+    --color-nav-hover: #335e4d;
+
+    --line-clr: #0C4B33;
+
 }
 
 @media (prefers-color-scheme: dark) {
     html:not([data-theme="light"]) {
         --django-green: #0C4B33;
-
-        --body-fg: #C1CAD2;
-
-        --logo-color: #F1FFF7;
-        --logo-btn: #fff;
-        --logo-btn-text-hover: #000;
-
-        --label-color: #eaeff6;
+        --text: #fff;
+        --theme: #fff;
 
         /* CORES DE FORMULÁRIO (Novo Bloco) */
         --input-bg: #1A1D1E; /* Fundo do input mais escuro para maior contraste */
@@ -82,19 +83,15 @@
         --color-td-bg-hover: #3A4146;            /* Fundo no hover (Cinza mais claro) */
         --color-td-border: #495057;              /* Bordas (Cinza médio) */
 
-        /* Mantemos o header igual para destaque */
-        --color-header-bg: var(--django-green);
-        --color-header-text: #FFFFFF;
     }
 
     html[data-theme="light"], :root {
         --django-green: #0C4B33;
 
-        --body-fg: #0C3C26;
+        --text: #000;
 
-        --logo-color: #F1FFF7;
-        --logo-btn: #fff;
-        --logo-btn-hover: #fff;
+        --theme: #000;
+
 
         --label-color: #374151;
 
@@ -123,8 +120,5 @@
         --color-td-bg-hover: #E6F7EF;            /* Fundo no hover (Verde mais claro) */
         --color-td-border: #DEE2E6;              /* Bordas (Cinza claro) */
 
-        /* Cores do Cabeçalho (th) */
-        --color-header-bg: var(--django-green);
-        --color-header-text: #FFFFFF;
     }
 }

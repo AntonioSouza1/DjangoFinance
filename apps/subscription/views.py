@@ -1,20 +1,123 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import View
+from django.contrib import messages
 
-from apps.registrations.forms.subscription import SubscriptionForm, CategoryForm
-from apps.registrations.models.subscription import Subscription, Category
-from django.shortcuts import get_object_or_404
+from apps.subscription.forms import SubscriptionForm, CategoryForm
+from apps.subscription.models import Subscription, Category
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from apps.utils.mixins import *
-from django.contrib import messages
-from django.db.models.deletion import ProtectedError
-from django.views.generic.base import ContextMixin
+
+class SubscriptionView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, View):
+
+    def get(self, request, pk=None):
+        subscription = get_object_or_404(Subscription, pk=pk) if pk else None
+        form = SubscriptionForm(instance=subscription, user=self.request.user)
+
+        f_id = self.request.GET.get('f_id', '')
+        f_description = self.request.GET.get('f_description', '')  # <-- Bug da vírgula corrigido
+        f_status = self.request.GET.get('f_status', '')
+        f_category = self.request.GET.get('f_category', '')
+
+        filters = {}
+
+        if f_id:
+            filters['id'] = f_id  # <-- Use a variável, não chame o GET de novo
+        if f_description:
+            filters['description__icontains'] = f_description
+        if f_status:
+            filters['status'] = f_status
+        if f_category:
+            filters['category__id'] = f_category
+
+        subscriptions = Subscription.objects.filter(user=request.user, **filters)
+
+        context = {'form': form,
+                   'subscriptions': subscriptions,
+                   'subscription': subscription,
+                   "categories": Category.objects.filter(user=self.request.user)}
+
+        if filters:
+            return render(request, 'subscription/partials/table.html', context)
 
 
+        if request.headers.get('HX-Request'):
+            return render(request, 'subscription/partials/form.html', context)
+
+        return render(request, 'subscription/list.html', context)
+
+    def post(self, request, pk=None):
+        subscription = get_object_or_404(Subscription, pk=pk) if pk else None
+        form = SubscriptionForm(request.POST, instance=subscription, user=self.request.user)
+
+        if form.is_valid():
+            sub = form.save(commit=False)
+            sub.user = self.request.user
+            sub.save()
+            messages.success(request, "Assinatura salva com sucesso!")
+            subscriptions = Subscription.objects.filter(user=request.user)
+            response = render(request, 'subscription/partials/table.html', {'subscriptions': subscriptions, 'messages': messages.get_messages(request)})
+            response['HX-Trigger'] = 'closeModal'
+            return response
+
+        context = {'form': form, 'subscription': subscription}
+
+        return render(request, 'subscription/partials/form.html', context)
+
+    def delete(self, request, pk):
+        subscription = get_object_or_404(Subscription, pk=pk)
+        subscription.delete()
+        subscriptions = Subscription.objects.filter(user=request.user)
+        response = render(request, 'subscription/partials/table.html', {'subscriptions':subscriptions})
+        response['HX-Trigger'] = 'closeModal'
+        return response
+
+class SubscriptionCategoryView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, View):
+    success_url = reverse_lazy('subscription:category_list')
+
+
+    def get(self, request, pk=None):
+        print('Carregando GET: Lista de Categorias')
+        category = get_object_or_404(Category, pk=pk) if pk else None
+        form = CategoryForm(instance=category)
+        categories = Category.objects.filter(user=request.user)
+
+        context = {'form': form, 'categories': categories, 'category': category}
+
+        if request.headers.get('HX-Request'):
+            return render(request, 'subscription/category/partials/form.html', context)
+
+        return render(request, 'subscription/category/list.html', context)
+
+    def post(self, request, pk=None):
+        print('Carregando POST: Lista de Categorias')
+        category = get_object_or_404(Category, pk=pk) if pk else None
+        print(category)
+        form = CategoryForm(request.POST, instance=category)
+
+        if form.is_valid():
+            form.instance.user = self.request.user
+            form.save()
+            categories = Category.objects.filter(user=request.user)
+            response = render(request, 'subscription/category/partials/table.html', {'categories':categories})
+            response['HX-Trigger'] = 'closeModal'
+            return response
+
+        return render(request, 'subscription/category/partials/table.html', {'form': form, 'categoria': category})
+
+    def delete(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        category.delete()
+        categories = Category.objects.filter(user=request.user)
+        response = render(request, 'subscription/category/partials/table.html', {'categories':categories})
+        return response
+
+
+'''
 #Lista de Categorias
 class CategoryListView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, ListView):
     model = Category
-    template_name = 'registrations/subscription/category/list.html'
+    template_name = 'subscription/category/list.html'
     paginate_by = 10
     context_object_name = 'categories'
     login_url = reverse_lazy('login:login')
@@ -63,7 +166,7 @@ class CategoryDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 class CategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Category
     form_class = CategoryForm
-    template_name = 'registrations/subscription/category/form.html'
+    template_name = 'subscription/category/form.html'
     success_url = reverse_lazy("subscription:category_list")
     login_url = reverse_lazy('login:login')
 
@@ -75,7 +178,7 @@ class CategoryCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessa
 class CategoryUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Category
     form_class = CategoryForm
-    template_name = 'registrations/subscription/category/form.html'
+    template_name = 'subscription/category/form.html'
     success_url = reverse_lazy('subscription:category_list')
     context_object_name = 'category'
     login_url = reverse_lazy('login:login')
@@ -128,7 +231,7 @@ class SubscriptionMixin(ContextMixin):
 #Lista de Assinaturas
 class SubscriptionsListView(LoginRequiredMixin, UserIsOwnerMixin, SubscriptionMixin, SuccessErrorMessageMixin, ListView):
     model = Subscription
-    template_name = 'registrations/subscription/list.html'
+    template_name = 'subscription/list.html'
     context_object_name = 'subscriptions'
     login_url = reverse_lazy('login:login')
 
@@ -136,15 +239,9 @@ class SubscriptionsListView(LoginRequiredMixin, UserIsOwnerMixin, SubscriptionMi
 class SubscriptionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, CreateView):
     model = Subscription
     form_class = SubscriptionForm
-    template_name = 'registrations/subscription/form.html'
+    template_name = 'subscription/partials/form.html'
     success_url = reverse_lazy('subscription:list')
     login_url = reverse_lazy('login:login')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not Category.objects.filter(user=self.request.user).exists():
-            messages.error(request, 'Não existem categorias cadastradas.')
-            return redirect(self.success_url)
-        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -160,7 +257,7 @@ class SubscriptionCreateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorM
 class SubscriptionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, UpdateView):
     model = Subscription
     form_class = SubscriptionForm
-    template_name = 'registrations/subscription/form.html'
+    template_name = 'subscription/partials/form.html'
     success_url = reverse_lazy('subscription:list')
     login_url = reverse_lazy('login:login')
 
@@ -173,7 +270,6 @@ class SubscriptionUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorM
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['transactions'] = self.object.transaction.filter(user=self.request.user).order_by('-updated_at')
-        print(context['transactions'])
 
         return context
 
@@ -193,6 +289,7 @@ class SubscriptionDeleteView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorM
 
 class SubscriptionReportView(LoginRequiredMixin, UserIsOwnerMixin, SuccessErrorMessageMixin, SubscriptionMixin, ListView):
     model = Subscription
-    template_name = 'registrations/subscription/report.html'
+    template_name = 'report.html'
     context_object_name = 'subscriptions'
     login_url = reverse_lazy('login:login')
+'''

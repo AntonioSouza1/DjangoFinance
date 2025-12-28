@@ -6,7 +6,7 @@ from django.views.generic import  View
 from django.utils import timezone
 
 from apps.transaction.models import Transaction
-from apps.registrations.models.subscription import Subscription
+from apps.subscription.models import Subscription
 from apps.utils.mixins import *
 
 today = timezone.now().date()

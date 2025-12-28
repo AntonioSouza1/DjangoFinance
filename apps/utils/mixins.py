@@ -21,7 +21,6 @@ class SuccessErrorMessageMixin:
 
 from django.shortcuts import redirect
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 
 
 class UserIsOwnerMixin:

@@ -106,7 +106,7 @@
 
 
 
-    <section class="tabela-container">
+    <section class="table-container">
         <table class="table">
             <caption>
             </caption>
@@ -157,7 +157,6 @@
                         <td>{{ transaction.payment_date|date:"d/m/Y" }}</td>
                         <td>{{ transaction.payment_method }}</td>
                         <td>
-
 
                             {% if not transaction.status == 'Q' %}
                                 <a href="{% url 'transaction:update' transaction.pk %}"><button type="button" class="custom-button outline success table-btn">Editar</button></a>

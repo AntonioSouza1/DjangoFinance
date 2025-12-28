@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 urlpatterns = [
-    path('subscriptions/', include('apps.registrations.urls.subscription')),
+
 
     #path('supplier/', include('apps.registrations.urls.supplier')),
     #path('bank_account/', include('apps.registrations.urls.bank_account')),

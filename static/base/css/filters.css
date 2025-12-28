@@ -1,6 +1,5 @@
 .filter{
     display: block;
-    overflow: auto;
     padding: 10px;
     margin: 10px;
     background-color: var(--container-bg);
@@ -69,6 +68,7 @@
             }
         }
     }
+
     .filter-button {
         width: 100%;
         padding: 2px 0;
